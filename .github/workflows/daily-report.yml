@@ -1,0 +1,32 @@
+name: 📊 Daily Pre-Market Report
+
+on:
+  schedule:
+    # 12:30 UTC = 8:30am EST = 1:30pm BST (Mon–Fri)
+    - cron: '30 12 * * 1-5'
+  workflow_dispatch:
+    # Allows manual trigger from GitHub Actions tab (useful if a run is missed)
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run daily report & send email
+        run: node scripts/daily-report.js
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

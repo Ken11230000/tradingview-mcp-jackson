@@ -4,3 +4,10 @@ scripts/current.pine
 temp_*
 *.log
 discovery-log.json
+
+# Secrets — never commit
+.env
+
+# Generated daily output — no need to track
+scripts/.last-picks.json
+scripts/.daily-picks.pine
