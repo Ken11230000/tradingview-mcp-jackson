@@ -49,6 +49,71 @@ function scannerPost(bodyObj, endpoint = '/america/scan') {
   });
 }
 
+// ── Finnhub API (free tier — earnings calendar + company news) ───────────────
+const FINNHUB_KEY = process.env.FINNHUB_KEY;
+
+function finnhubGet(path) {
+  return new Promise((resolve, reject) => {
+    if (!FINNHUB_KEY) return resolve(null);
+    const url = `https://finnhub.io/api/v1${path}${path.includes('?') ? '&' : '?'}token=${FINNHUB_KEY}`;
+    const req = https.get(url, { timeout: 10000 }, res => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error('Finnhub parse error: ' + data.slice(0, 200))); }
+      });
+    });
+    req.on('timeout', () => { req.destroy(); reject(new Error('Finnhub timeout: ' + path)); });
+    req.on('error', reject);
+  });
+}
+
+// Fetch upcoming earnings for a list of symbols (one batched API call)
+async function fetchEarningsForSymbols(symbols) {
+  if (!FINNHUB_KEY || symbols.length === 0) return new Map();
+  const today  = new Date().toISOString().slice(0, 10);
+  const future = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+  try {
+    const data = await finnhubGet(`/calendar/earnings?from=${today}&to=${future}`);
+    const map = new Map();
+    if (!data?.earningsCalendar) return map;
+    const symSet = new Set(symbols);
+    for (const e of data.earningsCalendar) {
+      if (!symSet.has(e.symbol)) continue;
+      const days = Math.round((new Date(e.date + 'T12:00:00Z').getTime() - Date.now()) / 86400000);
+      if (days < 0) continue;
+      const existing = map.get(e.symbol);
+      if (!existing || days < existing.days) {
+        map.set(e.symbol, { days, hour: e.hour, epsEst: e.epsEstimate });
+      }
+    }
+    return map;
+  } catch (err) {
+    console.warn(`⚠️  Earnings fetch failed: ${err.message}`);
+    return new Map();
+  }
+}
+
+// Fetch up to 3 latest news headlines for a symbol (last 7 days)
+async function fetchNewsForSymbol(symbol) {
+  if (!FINNHUB_KEY) return [];
+  const today = new Date().toISOString().slice(0, 10);
+  const past  = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  try {
+    const data = await finnhubGet(`/company-news?symbol=${symbol}&from=${past}&to=${today}`);
+    if (!Array.isArray(data)) return [];
+    return data.slice(0, 3).map(n => ({
+      headline: (n.headline || '').slice(0, 100),
+      source:   n.source || 'news',
+      url:      n.url || ''
+    }));
+  } catch (err) {
+    console.warn(`⚠️  News fetch failed for ${symbol}: ${err.message}`);
+    return [];
+  }
+}
+
 // ── Fetch main universe ───────────────────────────────────────────────────────
 function fetchStocks() {
   return scannerPost({
@@ -460,7 +525,7 @@ function formatReport(stocks, regime, fx, date) {
 
   if (fomcAlert) text += `🚨 ${fomcAlert}\n\n`;
 
-  top.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings }, i) => {
+  top.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -481,7 +546,12 @@ function formatReport(stocks, regime, fx, date) {
     text += `   Stop:      $${stop}  (7.5% below entry)\n`;
     text += `   Target 1:  $${target1}  (+20%)\n`;
     text += `   Target 2:  $${target2}  (+25%)\n`;
-    text += `   R:R Ratio: ${rr}:1\n\n`;
+    text += `   R:R Ratio: ${rr}:1\n`;
+    if (news?.length) {
+      text += `   📰 Recent news:\n`;
+      news.forEach(n => { text += `      • ${n.headline} (${n.source})\n`; });
+    }
+    text += `\n`;
   });
 
   // ── FX Section (plain text) ──
@@ -540,7 +610,7 @@ function formatReport(stocks, regime, fx, date) {
   const spyRow = regime.spy ? `SPY $${regime.spy.close?.toFixed(2)} | 200SMA $${regime.spy.sma200?.toFixed(2)} | ${regime.spy.above ? '✅ Above' : '🔴 Below'}` : '';
   const qqqRow = regime.qqq ? `QQQ $${regime.qqq.close?.toFixed(2)} | 200SMA $${regime.qqq.sma200?.toFixed(2)} | ${regime.qqq.above ? '✅ Above' : '🔴 Below'}` : '';
 
-  const rows = top.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings }, i) => {
+  const rows = top.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -560,8 +630,12 @@ function formatReport(stocks, regime, fx, date) {
       `ATR ${atrL.flag}${atrL.text}`,
       volDryUp ? '🔥 Vol dry-up' : '',
       avgVolStr ? `Avg vol: ${avgVolStr}` : '',
-      daysToEarnings !== null ? `⚡ Earnings ~${daysToEarnings}d` : ''
+      daysToEarnings != null ? `⚡ Earnings ~${daysToEarnings}d` : ''
     ].filter(Boolean).join(' · ');
+    const newsHtml = news?.length ? `
+        <div style="background:#0d1117;border-left:3px solid #58a6ff;padding:8px 10px;margin-top:6px;font-size:11px;color:#8b949e;border-radius:4px;">
+          📰 ${news.map(n => `<a href="${n.url}" style="color:#58a6ff;text-decoration:none;">${n.headline}</a> <span style="color:#6e7681;">(${n.source})</span>`).join('<br>')}
+        </div>` : '';
     return `
       <tr style="border-bottom:1px solid #21262d;">
         <td style="padding:14px 8px;font-size:20px;text-align:center;">${MEDALS[i]}</td>
@@ -569,6 +643,7 @@ function formatReport(stocks, regime, fx, date) {
           <strong style="font-size:17px;color:#fff;">${name}</strong><br>
           <span style="color:#8b949e;font-size:12px;">${desc?.slice(0, 38) || ''} · ${mc}</span><br>
           <span style="color:#8b949e;font-size:11px;">${qualityBadges}</span>
+          ${newsHtml}
         </td>
         <td style="padding:14px 8px;text-align:right;">
           <strong style="color:#fff;">$${close.toFixed(2)}</strong><br>
@@ -807,6 +882,26 @@ async function main() {
     console.log(`  ${MEDALS[i]} ${name.padEnd(8)} $${close.toFixed(2).padStart(8)}  RS: ${rs >= 0 ? '+' : ''}${rs.toFixed(0)}% vs SPY  Vol: ${vol.flag} ${vol.text}`);
   });
   console.log('');
+
+  // ── Enrich top 5 picks with Finnhub earnings + news (if API key set) ───────
+  if (FINNHUB_KEY) {
+    const topSymbols   = stocks.slice(0, 5).map(s => s.r.d[0]);
+    const earningsMap  = await fetchEarningsForSymbols(topSymbols);
+    const newsResults  = await Promise.allSettled(topSymbols.map(s => fetchNewsForSymbol(s)));
+
+    stocks.slice(0, 5).forEach((s, i) => {
+      const sym = s.r.d[0];
+      const e   = earningsMap.get(sym);
+      if (e) s.daysToEarnings = e.days;
+      s.news = newsResults[i].status === 'fulfilled' ? newsResults[i].value : [];
+    });
+
+    const withEarnings = stocks.slice(0, 5).filter(s => s.daysToEarnings != null).length;
+    const withNews     = stocks.slice(0, 5).filter(s => s.news?.length > 0).length;
+    console.log(`📰 Finnhub: ${withEarnings}/5 picks with earnings dates  |  ${withNews}/5 with news headlines\n`);
+  } else {
+    console.log('ℹ️  FINNHUB_KEY not set — skipping earnings + news enrichment\n');
+  }
 
   // ── Generate Pine Script with today's levels ────────────────────────────────
   const pineSource = generatePineScript(stocks.slice(0, 5), date, regime.status);
