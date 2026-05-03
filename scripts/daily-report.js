@@ -155,8 +155,29 @@ function fetchFXData() {
       ]
     },
     columns: ['name','close','change','SMA20','SMA50','SMA200',
-              'ATR','Perf.W','Perf.M','Perf.3M']
+              'ATR','Perf.W','Perf.M','Perf.3M','ADX']  // [10] ADX = trend strength
   }, '/global/scan');
+}
+
+// ── Fetch DXY (US Dollar Index) — single source of USD truth ─────────────────
+function fetchDXY() {
+  return scannerPost({
+    symbols: { tickers: ['TVC:DXY'] },
+    columns: ['name','close','change','SMA50','SMA200','Perf.W','Perf.M']
+  }, '/global/scan');
+}
+
+function analyzeDXY(dxyData) {
+  const row = dxyData?.data?.[0];
+  if (!row) return null;
+  const [name, close, change, sma50, sma200, perfW, perfM] = row.d;
+  if (!close) return null;
+  const above50  = sma50  != null ? close > sma50  : null;
+  const above200 = sma200 != null ? close > sma200 : null;
+  const trend = (above50 && above200) ? 'BULL'
+              : (!above50 && !above200) ? 'BEAR'
+              : above50 ? 'BULLISH' : 'BEARISH';
+  return { close, change, sma50, sma200, perfW, perfM, above50, above200, trend };
 }
 
 // ── Analyse FX pairs — trend, bias, ATR-based levels ─────────────────────────
@@ -166,7 +187,7 @@ function analyzeFX(fxData) {
   const dp    = sym => isJPY(sym) ? 3 : 5;
 
   const pairs = rows.map(r => {
-    const [name, close, change, sma20, sma50, sma200, atr, perfW, perfM, perf3M] = r.d;
+    const [name, close, change, sma20, sma50, sma200, atr, perfW, perfM, perf3M, adx] = r.d;
     const sym = name || r.s.split(':')[1] || r.s;
     if (!close) return null;
 
@@ -207,8 +228,16 @@ function analyzeFX(fxData) {
     const t2    = bias === 'LONG'  ? fmt(close + stopDist * 3) :
                   bias === 'SHORT' ? fmt(close - stopDist * 3) : null;
 
+    // ADX: trend strength filter. 25+ = trending, <20 = ranging
+    const adxVal      = (typeof adx === 'number' && adx > 0) ? adx : null;
+    const trending    = adxVal != null ? adxVal >= 25 : null;
+    const adxLabel    = adxVal == null ? '?' :
+                        adxVal >= 25 ? `🔥 ${adxVal.toFixed(0)}` :
+                        adxVal >= 20 ? `✅ ${adxVal.toFixed(0)}` :
+                                       `⚠️ ${adxVal.toFixed(0)}`;
+
     const fmtPct = v => (v == null ? 'n/a' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%');
-    return { sym, close, change, atr,
+    return { sym, close, change, atr, adx: adxVal, trending, adxLabel,
              perfW: perfW ?? null, perfM: perfM ?? null, perf3M: perf3M ?? null,
              fmtPct, trend, bias, bullScore, entry: fmt(close), stop, t1, t2 };
   }).filter(Boolean);
@@ -236,18 +265,20 @@ function analyzeFX(fxData) {
                   usdStrong ? '🟢 USD STRONG — sell EUR/GBP/AUD/NZD, buy USD/JPY USD/CAD USD/CHF' :
                               '🟡 USD MIXED  — no clean directional theme, trade pairs individually';
 
-  // ── Filter setups to only show pairs that ALIGN with USD direction ─────────
+  // ── Filter setups: ADX >= 20 (trending) + USD direction alignment ─────────
   const setups = pairs
     .filter(p => {
       if (p.bias === 'NEUTRAL') return false;
+      // ADX gate: skip ranging pairs even if SMAs are stacked
+      if (p.adx != null && p.adx < 20) return false;
       // USD-quote pair: LONG is consistent with USD weak, SHORT with USD strong
       if (USD_QUOTE.has(p.sym)) {
-        if (usdWeak   && p.bias === 'SHORT') return false; // e.g. EURUSD SHORT when USD weak — contradicts
-        if (usdStrong && p.bias === 'LONG')  return false; // e.g. EURUSD LONG when USD strong — contradicts
+        if (usdWeak   && p.bias === 'SHORT') return false;
+        if (usdStrong && p.bias === 'LONG')  return false;
       }
       // USD-base pair: SHORT is consistent with USD weak, LONG with USD strong
       if (USD_BASE.has(p.sym)) {
-        if (usdWeak   && p.bias === 'LONG')  return false; // e.g. USDJPY LONG when USD weak — contradicts ✓ FIXED
+        if (usdWeak   && p.bias === 'LONG')  return false;
         if (usdStrong && p.bias === 'SHORT') return false;
       }
       return true;
@@ -438,6 +469,77 @@ function getFOMCAlert() {
   return null;
 }
 
+// ── Economic calendar (2026) — major FX-moving events ────────────────────────
+const ECON_2026 = [
+  // ECB rate decisions (announce ~13:15 UTC)
+  { date: '2026-01-22', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-03-05', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-04-16', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-06-04', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-07-23', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-09-10', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-10-22', event: 'ECB Rate Decision', affects: 'EUR' },
+  { date: '2026-12-17', event: 'ECB Rate Decision', affects: 'EUR' },
+  // BOE rate decisions (12:00 UTC, "Super Thursday")
+  { date: '2026-02-05', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-03-26', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-05-07', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-06-18', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-08-06', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-09-17', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-11-05', event: 'BOE Rate Decision', affects: 'GBP' },
+  { date: '2026-12-17', event: 'BOE Rate Decision', affects: 'GBP' },
+  // BOJ rate decisions (~03:00 UTC)
+  { date: '2026-01-23', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-03-19', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-04-28', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-06-17', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-07-31', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-09-18', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-10-30', event: 'BOJ Rate Decision', affects: 'JPY' },
+  { date: '2026-12-18', event: 'BOJ Rate Decision', affects: 'JPY' },
+  // US NFP (1st Friday of month, 12:30 UTC)
+  { date: '2026-01-02', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-02-06', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-03-06', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-04-03', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-05-01', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-06-05', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-07-02', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-08-07', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-09-04', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-10-02', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-11-06', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  { date: '2026-12-04', event: 'US Non-Farm Payrolls', affects: 'USD' },
+  // US CPI (12:30 UTC)
+  { date: '2026-01-14', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-02-11', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-03-11', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-04-14', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-05-12', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-06-10', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-07-14', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-08-12', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-09-10', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-10-13', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-11-12', event: 'US CPI Release',      affects: 'USD' },
+  { date: '2026-12-10', event: 'US CPI Release',      affects: 'USD' }
+];
+
+function getEconAlerts() {
+  const now = Date.now();
+  const alerts = [];
+  for (const e of ECON_2026) {
+    const eventTs = new Date(e.date + 'T13:00:00Z').getTime();
+    const days    = Math.round((eventTs - now) / 86400000);
+    if (days >= 0 && days <= 2) {
+      const label = days === 0 ? 'TODAY' : `in ${days} day${days > 1 ? 's' : ''}`;
+      alerts.push({ ...e, days, label });
+    }
+  }
+  return alerts;
+}
+
 // ── Regime banner (plain text) ────────────────────────────────────────────────
 function regimeBannerText(regime) {
   const { status, spy, qqq } = regime;
@@ -615,16 +717,32 @@ function formatReport(stocks, regime, fx, date) {
   // ── FX Section (plain text) ──
   text += `${'─'.repeat(60)}\n\n`;
   text += `💱 FX ANALYSIS — Major Pairs\n`;
-  text += `${fx.usdBias}\n\n`;
+  text += `${fx.usdBias}\n`;
+
+  // DXY snapshot (the actual market measure of USD strength)
+  if (fx.dxy) {
+    const dxyArrow = fx.dxy.change >= 0 ? '↑' : '↓';
+    const dxyChg   = fx.dxy.change != null ? `${dxyArrow}${Math.abs(fx.dxy.change).toFixed(2)}%` : '';
+    const trendIcon = fx.dxy.trend === 'BULL' ? '🟢' : fx.dxy.trend === 'BEAR' ? '🔴' : '🟡';
+    text += `💵 DXY $${fx.dxy.close.toFixed(2)} ${dxyChg}  |  vs SMA50 ${fx.dxy.above50 ? '✅' : '🔴'}  vs SMA200 ${fx.dxy.above200 ? '✅' : '🔴'}  |  ${trendIcon} ${fx.dxy.trend}\n`;
+  }
+
+  // Economic calendar warnings
+  if (fx.econAlerts?.length) {
+    text += `\n📅 Upcoming high-impact events:\n`;
+    fx.econAlerts.forEach(a => {
+      text += `   ⚡ ${a.event} ${a.label} (${a.date}) — ${a.affects} pairs will be volatile\n`;
+    });
+  }
+  text += `\n`;
 
   if (fx.setups.length > 0) {
-    text += `Top setups (SMA-aligned trend):\n\n`;
+    text += `Top setups (ADX≥20 trending + USD-aligned):\n\n`;
     const fxMedals = ['🥇','🥈','🥉'];
-    fx.setups.forEach(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct }, i) => {
+    fx.setups.forEach(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct, adxLabel }, i) => {
       const dir = bias === 'LONG' ? '📈 LONG' : '📉 SHORT';
-      text += `${fxMedals[i]} ${sym}  ${dir}  |  ${trend}\n`;
-      text += `   Price:    ${entry}  (${change >= 0 ? '+' : ''}${change?.toFixed(2)}%)  |  Wk: ${fmtPct(perfW)}\n`;
-      text += `   Entry:    ${entry}\n`;
+      text += `${fxMedals[i]} ${sym}  ${dir}  |  ${trend}  |  ADX ${adxLabel}\n`;
+      text += `   Price:    ${entry}  (${change != null ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'n/a'})  |  Wk: ${fmtPct(perfW)}\n`;
       text += `   Stop:     ${stop}  (1.5× ATR)\n`;
       text += `   Target 1: ${t1}  (2:1 R:R)\n`;
       text += `   Target 2: ${t2}  (3:1 R:R)\n\n`;
@@ -635,7 +753,7 @@ function formatReport(stocks, regime, fx, date) {
 
   // All pairs summary
   text += `Pair Summary:\n`;
-  fx.pairs.forEach(({ sym, entry: priceStr, trend, bias, change }) => {
+  fx.pairs.forEach(({ sym, entry: priceStr, trend, bias, change, adxLabel }) => {
     const USD_QUOTE = new Set(['EURUSD','GBPUSD','AUDUSD','NZDUSD']);
     const USD_BASE  = new Set(['USDJPY','USDCAD','USDCHF']);
     const contradicts = (fx.usdWeak   && USD_BASE.has(sym)  && bias === 'LONG')  ||
@@ -645,7 +763,7 @@ function formatReport(stocks, regime, fx, date) {
     const icon = contradicts ? '⚡' : bias === 'LONG' ? '🟢' : bias === 'SHORT' ? '🔴' : '🟡';
     const note = contradicts ? ' ← contradicts USD theme' : '';
     const chgStr = change != null ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'n/a';
-    text += `  ${icon} ${sym.padEnd(8)} ${priceStr.padStart(10)}  ${chgStr}  ${trend}${note}\n`;
+    text += `  ${icon} ${sym.padEnd(8)} ${priceStr.padStart(10)}  ${chgStr.padStart(7)}  ADX ${(adxLabel || '?').padEnd(8)} ${trend}${note}\n`;
   });
 
   text += `\n${'─'.repeat(60)}\n`;
@@ -808,20 +926,43 @@ function formatReport(stocks, regime, fx, date) {
       <!-- FX Analysis -->
       <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;margin-bottom:16px;">
         <h2 style="margin:0 0 6px;font-size:16px;">💱 FX Analysis — Major Pairs</h2>
-        <p style="margin:0 0 14px;color:#8b949e;font-size:13px;">${fx.usdBias}</p>
+        <p style="margin:0 0 12px;color:#8b949e;font-size:13px;">${fx.usdBias}</p>
+
+        ${fx.dxy ? `
+        <div style="background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div>
+            <strong style="color:#fff;font-size:14px;">💵 DXY (US Dollar Index)</strong>
+            <span style="color:#8b949e;font-size:12px;margin-left:6px;">— the market measure of USD strength</span>
+          </div>
+          <div style="font-size:13px;">
+            <strong style="color:#fff;">$${fx.dxy.close.toFixed(2)}</strong>
+            <span style="color:${fx.dxy.change >= 0 ? '#00c853' : '#ff5252'};margin-left:6px;">${fx.dxy.change >= 0 ? '+' : ''}${fx.dxy.change?.toFixed(2) ?? '0.00'}%</span>
+            <span style="color:#8b949e;margin-left:8px;">SMA50 ${fx.dxy.above50 ? '✅' : '🔴'} · SMA200 ${fx.dxy.above200 ? '✅' : '🔴'}</span>
+            <span style="background:${fx.dxy.trend === 'BULL' ? '#1a3d00' : fx.dxy.trend === 'BEAR' ? '#3d0014' : '#3d2000'};color:${fx.dxy.trend === 'BULL' ? '#69f0ae' : fx.dxy.trend === 'BEAR' ? '#ff5252' : '#ffab00'};padding:2px 10px;border-radius:10px;font-weight:bold;margin-left:8px;font-size:12px;">${fx.dxy.trend}</span>
+          </div>
+        </div>` : ''}
+
+        ${fx.econAlerts?.length ? `
+        <div style="background:#2d1f00;border-left:4px solid #ffab00;border-radius:4px;padding:12px;margin-bottom:12px;">
+          <p style="margin:0 0 6px;color:#ffab00;font-weight:bold;font-size:13px;">📅 Upcoming high-impact events:</p>
+          ${fx.econAlerts.map(a => `<p style="margin:2px 0;color:#e6edf3;font-size:12px;">⚡ <strong>${a.event}</strong> ${a.label} (${a.date}) — <span style="color:#ffab00;">${a.affects}</span> pairs volatile</p>`).join('')}
+        </div>` : ''}
 
         ${fx.setups.length > 0 ? `
-        <p style="margin:0 0 10px;color:#e6edf3;font-size:13px;font-weight:bold;">Top Setups — SMA-Aligned Trend:</p>
-        ${fx.setups.map(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct }, i) => {
+        <p style="margin:0 0 10px;color:#e6edf3;font-size:13px;font-weight:bold;">Top Setups — ADX≥20 Trending + USD-Aligned:</p>
+        ${fx.setups.map(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct, adxLabel }, i) => {
           const dir      = bias === 'LONG' ? '📈 LONG' : '📉 SHORT';
           const dirColor = bias === 'LONG' ? '#00c853' : '#ff5252';
           const chgColor = change >= 0 ? '#00c853' : '#ff1744';
           const medals   = ['🥇','🥈','🥉'];
           return `
           <div style="background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:14px;margin-bottom:10px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
               <span style="font-size:16px;font-weight:bold;color:#fff;">${medals[i]} ${sym}</span>
-              <span style="font-size:14px;font-weight:bold;color:${dirColor};">${dir} · ${trend}</span>
+              <span style="font-size:13px;">
+                <span style="font-weight:bold;color:${dirColor};">${dir} · ${trend}</span>
+                <span style="background:#21262d;color:#e6edf3;padding:2px 8px;border-radius:10px;margin-left:6px;font-size:11px;">ADX ${adxLabel || '?'}</span>
+              </span>
             </div>
             <div style="color:#8b949e;font-size:12px;margin-bottom:10px;">
               Price: <strong style="color:#fff;">${entry}</strong>
@@ -856,11 +997,12 @@ function formatReport(stocks, regime, fx, date) {
             <th style="padding:6px 4px;text-align:right;">Price</th>
             <th style="padding:6px 4px;text-align:right;">Day</th>
             <th style="padding:6px 4px;text-align:right;">Week</th>
+            <th style="padding:6px 4px;text-align:center;">ADX</th>
             <th style="padding:6px 4px;text-align:center;">Trend</th>
             <th style="padding:6px 4px;text-align:center;">Bias</th>
           </tr></thead>
           <tbody>
-          ${fx.pairs.map(({ sym, entry: priceStr, change, perfW, fmtPct, trend, bias }) => {
+          ${fx.pairs.map(({ sym, entry: priceStr, change, perfW, fmtPct, trend, bias, adxLabel }) => {
             const biasColor = bias === 'LONG' ? '#00c853' : bias === 'SHORT' ? '#ff5252' : '#8b949e';
             const biasIcon  = bias === 'LONG' ? '🟢 LONG' : bias === 'SHORT' ? '🔴 SHORT' : '🟡 FLAT';
             const chgColor  = change >= 0 ? '#00c853' : '#ff1744';
@@ -869,6 +1011,7 @@ function formatReport(stocks, regime, fx, date) {
               <td style="padding:7px 4px;text-align:right;color:#e6edf3;">${priceStr}</td>
               <td style="padding:7px 4px;text-align:right;color:${chgColor};">${change != null ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'n/a'}</td>
               <td style="padding:7px 4px;text-align:right;color:${(perfW??0) >= 0 ? '#00c853':'#ff5252'};">${fmtPct(perfW)}</td>
+              <td style="padding:7px 4px;text-align:center;color:#e6edf3;font-size:11px;">${adxLabel || '?'}</td>
               <td style="padding:7px 4px;text-align:center;color:#8b949e;">${trend}</td>
               <td style="padding:7px 4px;text-align:center;color:${biasColor};font-weight:bold;">${biasIcon}</td>
             </tr>`;
@@ -925,8 +1068,8 @@ async function main() {
   console.log(`\n🔍 Running Minervini Pre-Market Scanner — ${date}\n`);
 
   // Fetch in parallel — allSettled so one failure doesn't kill the whole report
-  const [rawResult, regimeResult, fxResult] = await Promise.allSettled([
-    fetchStocks(), fetchMarketRegime(), fetchFXData()
+  const [rawResult, regimeResult, fxResult, dxyResult] = await Promise.allSettled([
+    fetchStocks(), fetchMarketRegime(), fetchFXData(), fetchDXY()
   ]);
 
   if (rawResult.status === 'rejected') {
@@ -936,11 +1079,15 @@ async function main() {
   const raw       = rawResult.value;
   const regimeRaw = regimeResult.status === 'fulfilled' ? regimeResult.value : { data: [] };
   const fxRaw     = fxResult.status    === 'fulfilled' ? fxResult.value    : { data: [] };
+  const dxyRaw    = dxyResult.status   === 'fulfilled' ? dxyResult.value   : null;
   if (regimeResult.status === 'rejected') console.warn('⚠️  Regime fetch failed:', regimeResult.reason.message);
   if (fxResult.status    === 'rejected') console.warn('⚠️  FX fetch failed:',     fxResult.reason.message);
+  if (dxyResult.status   === 'rejected') console.warn('⚠️  DXY fetch failed:',    dxyResult.reason.message);
 
   const regime = evaluateRegime(regimeRaw);
   const fx     = analyzeFX(fxRaw);
+  fx.dxy        = analyzeDXY(dxyRaw);
+  fx.econAlerts = getEconAlerts();
   console.log(`🌍 Market Regime: ${regime.status} (SPY ${regime.spy?.above ? '✅ above' : '🔴 below'} 200SMA | QQQ ${regime.qqq?.above ? '✅ above' : '🔴 below'} 200SMA)`);
   console.log(`   SPY 1yr: ${regime.spy?.perfY?.toFixed(1)}%  |  SPY used as RS benchmark\n`);
 
