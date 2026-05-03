@@ -380,6 +380,45 @@ function proximityLabel(tier) {
   return { elite: '🔥 Elite', strong: '✅ Strong', acceptable: '⚠️ Acceptable' }[tier] || '';
 }
 
+// ── Setup scoring (0-100) → at-a-glance action label ─────────────────────────
+// Combines all quality signals into a single decision: READY / STRONG / WATCH / WAIT
+function scoreSetup({ proximityTier, atrPct, volDryUp, relVol, rs, daysToEarnings }) {
+  let score = 0;
+
+  // Proximity to 52w high (max 25) — closer to breakout = better
+  if (proximityTier === 'elite')   score += 25;
+  else if (proximityTier === 'strong') score += 12;
+
+  // ATR tightness (max 20) — coiled base beats wide volatility
+  if (atrPct != null) {
+    if (atrPct < 1.5) score += 20;
+    else if (atrPct < 3.0) score += 10;
+  }
+
+  // Pre-breakout volume dry-up (max 15) — supply exhaustion signal
+  if (volDryUp) score += 15;
+
+  // Pre-market volume confirmation (max 15)
+  if (relVol >= 2.0) score += 15;
+  else if (relVol >= 1.0) score += 7;
+
+  // RS strength vs SPY (max 15) — leadership filter
+  if (rs >= 100) score += 15;
+  else if (rs >= 20) score += 7;
+
+  // Earnings risk (max 10) — proximity to earnings = binary risk
+  if (daysToEarnings == null || daysToEarnings > 15) score += 10;
+  else if (daysToEarnings > 7) score += 5;
+
+  let action, emoji, color;
+  if      (score >= 70) { action = 'BUY READY'; emoji = '🟢'; color = '#00c853'; }
+  else if (score >= 50) { action = 'STRONG';    emoji = '🟢'; color = '#69f0ae'; }
+  else if (score >= 30) { action = 'WATCH';     emoji = '🟡'; color = '#ffab00'; }
+  else                  { action = 'WAIT';      emoji = '🔴'; color = '#ff5252'; }
+
+  return { score, action, emoji, color };
+}
+
 // ── FOMC meeting dates (Fed announcement days, 2026) ─────────────────────────
 const FOMC_2026 = [
   '2026-01-28', '2026-03-18', '2026-04-29', '2026-06-10',
@@ -515,17 +554,37 @@ function formatReport(stocks, regime, fx, date) {
   const { status } = regime;
   const fomcAlert = getFOMCAlert();
 
+  // ── Score top 5 picks for at-a-glance action ──
+  const scoredTop = top.map(s => ({ ...s, ...scoreSetup(s) }));
+  const counts    = { ready: 0, strong: 0, watch: 0, wait: 0 };
+  scoredTop.forEach(s => {
+    if      (s.score >= 70) counts.ready++;
+    else if (s.score >= 50) counts.strong++;
+    else if (s.score >= 30) counts.watch++;
+    else                    counts.wait++;
+  });
+  const bestPick = [...scoredTop].sort((a, b) => b.score - a.score)[0];
+
   // ── Plain text ──
   let text = `📊 PRE-MARKET REPORT — ${date}\n`;
-  text += `🕘 Sending 1 hour before US market open (9:30am EST)\n`;
   text += `${'─'.repeat(60)}\n\n`;
+
+  // ── TL;DR Summary ──
+  text += `⚡ TODAY AT A GLANCE\n`;
+  text += `   ${counts.ready} 🟢 READY  ·  ${counts.strong} 🟢 STRONG  ·  ${counts.watch} 🟡 WATCH  ·  ${counts.wait} 🔴 WAIT\n`;
+  if (bestPick) {
+    const bestName = bestPick.r.d[0];
+    text += `   Best setup: ${bestName} (Score ${bestPick.score}/100 — ${bestPick.emoji} ${bestPick.action})\n`;
+  }
+  if (fomcAlert) text += `   🚨 ${fomcAlert}\n`;
+  if (regime.status === 'BEAR') text += `   🔴 BEAR MARKET — Minervini holds 100% cash\n`;
+  text += `\n${'─'.repeat(60)}\n\n`;
+
   text += `🌍 MARKET REGIME\n${regimeBannerText(regime)}\n\n`;
   text += `${'─'.repeat(60)}\n\n`;
   text += `📈 ${marketCount} stocks passed Minervini Trend Template — Top 5 by RS vs SPY:\n\n`;
 
-  if (fomcAlert) text += `🚨 ${fomcAlert}\n\n`;
-
-  top.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news }, i) => {
+  scoredTop.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -537,16 +596,15 @@ function formatReport(stocks, regime, fx, date) {
     const avgVolStr = avgVol
       ? (avgVol >= 1e6 ? (avgVol / 1e6).toFixed(1) + 'M' : (avgVol / 1e3).toFixed(0) + 'K') + '/day'
       : '';
-    text += `${MEDALS[i]} ${name}  —  ${desc?.slice(0, 30) || ''}\n`;
-    text += `   Price:     $${close.toFixed(2)}  (${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%)  |  MCap: ${mc}  |  vs 52w High: ${fromHigh}%\n`;
-    text += `   RS vs SPY: ${rsL.flag} ${rsL.text} outperformance  |  Pre-mkt Vol: ${vol.flag} ${vol.text}${avgVolStr ? '  |  Avg: ' + avgVolStr : ''}\n`;
-    text += `   Setup:     ${proxL}  |  Base ATR: ${atrL.flag} ${atrL.text}${volDryUp ? '  |  🔥 Vol dry-up near high' : ''}\n`;
-    if (daysToEarnings !== null) text += `   ⚡ EARNINGS ~${daysToEarnings}d away — pilot position only (half size)\n`;
-    text += `   Entry:     $${entry.toFixed(2)}\n`;
-    text += `   Stop:      $${stop}  (7.5% below entry)\n`;
-    text += `   Target 1:  $${target1}  (+20%)\n`;
-    text += `   Target 2:  $${target2}  (+25%)\n`;
-    text += `   R:R Ratio: ${rr}:1\n`;
+    text += `${MEDALS[i]} ${name}  ${emoji} ${action}  (Score: ${score}/100)\n`;
+    text += `   ${desc?.slice(0, 40) || ''}\n`;
+    text += `   $${close.toFixed(2)} (${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%)  |  ${mc}  |  ${fromHigh}% from 52w high\n`;
+    text += `   📊 ${proxL} setup  ·  Base ATR ${atrL.flag} ${atrL.text}  ·  RS ${rsL.flag} ${rsL.text}\n`;
+    text += `   📈 Pre-mkt Vol: ${vol.flag} ${vol.text}${avgVolStr ? ' (avg ' + avgVolStr + ')' : ''}${volDryUp ? '  ·  🔥 Vol dry-up near high' : ''}\n`;
+    if (daysToEarnings != null) text += `   ⚡ EARNINGS ~${daysToEarnings}d away — pilot position only (half size)\n`;
+    text += `   ──────────────────────────────────\n`;
+    text += `   📍 Entry $${entry.toFixed(2)}  →  🛑 Stop $${stop}  →  🎯 T1 $${target1}  →  🎯 T2 $${target2}\n`;
+    text += `   R:R ${rr}:1  ·  Stop is 7.5% below entry  ·  T1 +20%  ·  T2 +25%\n`;
     if (news?.length) {
       text += `   📰 Recent news:\n`;
       news.forEach(n => { text += `      • ${n.headline} (${n.source})\n`; });
@@ -610,7 +668,8 @@ function formatReport(stocks, regime, fx, date) {
   const spyRow = regime.spy ? `SPY $${regime.spy.close?.toFixed(2)} | 200SMA $${regime.spy.sma200?.toFixed(2)} | ${regime.spy.above ? '✅ Above' : '🔴 Below'}` : '';
   const qqqRow = regime.qqq ? `QQQ $${regime.qqq.close?.toFixed(2)} | 200SMA $${regime.qqq.sma200?.toFixed(2)} | ${regime.qqq.above ? '✅ Above' : '🔴 Below'}` : '';
 
-  const rows = top.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news }, i) => {
+  // Replace wide table with stacked cards — much better mobile readability
+  const stockCards = scoredTop.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, color }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -620,50 +679,73 @@ function formatReport(stocks, regime, fx, date) {
     const rsL  = rsLabel(rs);
     const atrL = atrLabel(atrPct);
     const proxL = proximityLabel(proximityTier);
-    const volColor = relVol >= 1.0 ? '#00c853' : relVol >= 0.5 ? '#ffab00' : '#ff1744';
-    const rsColor  = rs >= 10 ? '#00c853' : rs >= 0 ? '#69f0ae' : '#ff5252';
     const avgVolStr = avgVol
       ? (avgVol >= 1e6 ? (avgVol / 1e6).toFixed(1) + 'M' : (avgVol / 1e3).toFixed(0) + 'K') + '/day'
       : '';
-    const qualityBadges = [
-      proxL,
-      `ATR ${atrL.flag}${atrL.text}`,
-      volDryUp ? '🔥 Vol dry-up' : '',
-      avgVolStr ? `Avg vol: ${avgVolStr}` : '',
-      daysToEarnings != null ? `⚡ Earnings ~${daysToEarnings}d` : ''
-    ].filter(Boolean).join(' · ');
+    const earningsBadge = daysToEarnings != null
+      ? `<span style="background:#3d2000;color:#ffab00;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:bold;margin-left:6px;">⚡ Earnings ~${daysToEarnings}d</span>`
+      : '';
     const newsHtml = news?.length ? `
-        <div style="background:#0d1117;border-left:3px solid #58a6ff;padding:8px 10px;margin-top:6px;font-size:11px;color:#8b949e;border-radius:4px;">
-          📰 ${news.map(n => `<a href="${n.url}" style="color:#58a6ff;text-decoration:none;">${n.headline}</a> <span style="color:#6e7681;">(${n.source})</span>`).join('<br>')}
-        </div>` : '';
+      <div style="background:#0d1117;border-left:3px solid #58a6ff;padding:10px 12px;margin-top:12px;font-size:12px;color:#8b949e;border-radius:4px;">
+        <strong style="color:#58a6ff;">📰 Recent News</strong><br>
+        ${news.map(n => `<a href="${n.url}" style="color:#e6edf3;text-decoration:none;">• ${n.headline}</a> <span style="color:#6e7681;">— ${n.source}</span>`).join('<br>')}
+      </div>` : '';
+
     return `
-      <tr style="border-bottom:1px solid #21262d;">
-        <td style="padding:14px 8px;font-size:20px;text-align:center;">${MEDALS[i]}</td>
-        <td style="padding:14px 8px;">
-          <strong style="font-size:17px;color:#fff;">${name}</strong><br>
-          <span style="color:#8b949e;font-size:12px;">${desc?.slice(0, 38) || ''} · ${mc}</span><br>
-          <span style="color:#8b949e;font-size:11px;">${qualityBadges}</span>
-          ${newsHtml}
-        </td>
-        <td style="padding:14px 8px;text-align:right;">
-          <strong style="color:#fff;">$${close.toFixed(2)}</strong><br>
-          <span style="color:${chgColor};font-size:12px;">${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%</span>
-        </td>
-        <td style="padding:14px 8px;text-align:right;">
-          <span style="color:${rsColor};font-weight:bold;">${rsL.flag} ${rsL.text}</span><br>
-          <span style="color:#8b949e;font-size:11px;">vs SPY</span>
-        </td>
-        <td style="padding:14px 8px;text-align:right;">
-          <span style="color:${volColor};font-weight:bold;">${vol.flag} ${vol.text}</span><br>
-          <span style="color:#8b949e;font-size:11px;">rel vol</span>
-        </td>
-        <td style="padding:14px 8px;text-align:right;color:#4fc3f7;font-weight:bold;">$${entry.toFixed(2)}</td>
-        <td style="padding:14px 8px;text-align:right;color:#ff5252;">$${stop}</td>
-        <td style="padding:14px 8px;text-align:right;color:#69f0ae;">$${target1}</td>
-        <td style="padding:14px 8px;text-align:right;color:#b9f6ca;">$${target2}</td>
-        <td style="padding:14px 8px;text-align:right;color:#fff176;">${rr}:1</td>
-        <td style="padding:14px 8px;text-align:right;color:#8b949e;font-size:12px;">${fromHigh}%</td>
-      </tr>`;
+    <div style="background:#161b22;border:1px solid #30363d;border-left:4px solid ${color};border-radius:10px;padding:18px;margin-bottom:14px;">
+      <!-- Header row: rank + name + action badge -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div>
+          <span style="font-size:22px;">${MEDALS[i]}</span>
+          <strong style="font-size:20px;color:#fff;margin-left:6px;">${name}</strong>
+          <span style="color:#8b949e;font-size:13px;margin-left:8px;">${desc?.slice(0, 35) || ''}</span>
+        </div>
+        <div>
+          <span style="background:${color};color:#000;padding:4px 12px;border-radius:14px;font-size:13px;font-weight:bold;">${emoji} ${action}</span>
+          <span style="color:#8b949e;font-size:12px;margin-left:8px;">Score: <strong style="color:#fff;">${score}/100</strong></span>
+        </div>
+      </div>
+
+      <!-- Price + key stats row -->
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;font-size:13px;">
+        <span><strong style="color:#fff;font-size:17px;">$${close.toFixed(2)}</strong> <span style="color:${chgColor};">${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%</span></span>
+        <span style="color:#8b949e;">MCap <strong style="color:#e6edf3;">${mc}</strong></span>
+        <span style="color:#8b949e;">52w High <strong style="color:#e6edf3;">${fromHigh}%</strong></span>
+        ${earningsBadge}
+      </div>
+
+      <!-- Quality badges -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;font-size:12px;">
+        <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">${proxL}</span>
+        <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">ATR ${atrL.flag} ${atrL.text}</span>
+        <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">RS ${rsL.flag} ${rsL.text}</span>
+        <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">Vol ${vol.flag} ${vol.text}${avgVolStr ? ' / ' + avgVolStr : ''}</span>
+        ${volDryUp ? `<span style="background:#1a3d00;padding:4px 10px;border-radius:12px;color:#69f0ae;">🔥 Vol dry-up</span>` : ''}
+      </div>
+
+      <!-- Trade levels -->
+      <div style="background:#0d1117;border-radius:8px;padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;font-size:12px;">
+        <div>
+          <div style="color:#8b949e;margin-bottom:2px;">📍 Entry</div>
+          <div style="color:#4fc3f7;font-weight:bold;font-size:14px;">$${entry.toFixed(2)}</div>
+        </div>
+        <div>
+          <div style="color:#8b949e;margin-bottom:2px;">🛑 Stop</div>
+          <div style="color:#ff5252;font-weight:bold;font-size:14px;">$${stop}</div>
+        </div>
+        <div>
+          <div style="color:#8b949e;margin-bottom:2px;">🎯 T1 (+20%)</div>
+          <div style="color:#69f0ae;font-weight:bold;font-size:14px;">$${target1}</div>
+        </div>
+        <div>
+          <div style="color:#8b949e;margin-bottom:2px;">🎯 T2 (+25%)</div>
+          <div style="color:#b9f6ca;font-weight:bold;font-size:14px;">$${target2}</div>
+        </div>
+      </div>
+      <p style="margin:8px 0 0;color:#8b949e;font-size:11px;text-align:center;">R:R ${rr}:1  ·  Stop is 7.5% below entry</p>
+
+      ${newsHtml}
+    </div>`;
   }).join('');
 
   const bearWarning = status === 'BEAR' ? `
@@ -706,26 +788,21 @@ function formatReport(stocks, regime, fx, date) {
         <p style="margin:0;color:#ffab00;font-weight:bold;font-size:14px;">🚨 ${fomcAlert}</p>
       </div>` : ''}
 
-      <!-- Stock Table -->
-      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;margin-bottom:16px;overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead>
-            <tr style="background:#21262d;color:#8b949e;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">
-              <th style="padding:10px 8px;text-align:center;">#</th>
-              <th style="padding:10px 8px;text-align:left;">Stock</th>
-              <th style="padding:10px 8px;text-align:right;">Price</th>
-              <th style="padding:10px 8px;text-align:right;">RS vs SPY</th>
-              <th style="padding:10px 8px;text-align:right;">Volume</th>
-              <th style="padding:10px 8px;text-align:right;">Entry</th>
-              <th style="padding:10px 8px;text-align:right;">Stop</th>
-              <th style="padding:10px 8px;text-align:right;">Target 1</th>
-              <th style="padding:10px 8px;text-align:right;">Target 2</th>
-              <th style="padding:10px 8px;text-align:right;">R:R</th>
-              <th style="padding:10px 8px;text-align:right;">vs High</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
+      <!-- TL;DR At-a-Glance -->
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px;margin-bottom:16px;">
+        <p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#fff;">⚡ Today at a Glance</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px;margin-bottom:10px;">
+          <span style="background:#0d1117;color:#00c853;padding:4px 12px;border-radius:14px;font-weight:bold;">${counts.ready} 🟢 READY</span>
+          <span style="background:#0d1117;color:#69f0ae;padding:4px 12px;border-radius:14px;font-weight:bold;">${counts.strong} 🟢 STRONG</span>
+          <span style="background:#0d1117;color:#ffab00;padding:4px 12px;border-radius:14px;font-weight:bold;">${counts.watch} 🟡 WATCH</span>
+          <span style="background:#0d1117;color:#ff5252;padding:4px 12px;border-radius:14px;font-weight:bold;">${counts.wait} 🔴 WAIT</span>
+        </div>
+        ${bestPick ? `<p style="margin:0;color:#8b949e;font-size:13px;">Best setup: <strong style="color:#fff;">${bestPick.r.d[0]}</strong> · Score <strong style="color:${bestPick.color};">${bestPick.score}/100</strong> · ${bestPick.emoji} ${bestPick.action}</p>` : ''}
+      </div>
+
+      <!-- Stock Cards -->
+      <div style="margin-bottom:16px;">
+        ${stockCards}
       </div>
 
       <!-- FX Analysis -->
