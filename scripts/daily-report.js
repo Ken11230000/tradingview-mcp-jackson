@@ -33,7 +33,8 @@ function scannerPost(bodyObj, endpoint = '/america/scan') {
     const req = https.request({
       hostname: 'scanner.tradingview.com',
       path: endpoint, method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+      timeout: 15000
     }, res => {
       let data = '';
       res.on('data', c => data += c);
@@ -42,6 +43,7 @@ function scannerPost(bodyObj, endpoint = '/america/scan') {
         catch (e) { reject(new Error('Scanner parse error: ' + data.slice(0, 200))); }
       });
     });
+    req.on('timeout', () => { req.destroy(); reject(new Error(`Scanner timeout on ${endpoint}`)); });
     req.on('error', reject);
     req.write(body); req.end();
   });
@@ -471,7 +473,7 @@ function formatReport(stocks, regime, fx, date) {
       ? (avgVol >= 1e6 ? (avgVol / 1e6).toFixed(1) + 'M' : (avgVol / 1e3).toFixed(0) + 'K') + '/day'
       : '';
     text += `${MEDALS[i]} ${name}  —  ${desc?.slice(0, 30) || ''}\n`;
-    text += `   Price:     $${close.toFixed(2)}  (${chg >= 0 ? '+' : ''}${chg.toFixed(1)}%)  |  MCap: ${mc}  |  vs 52w High: ${fromHigh}%\n`;
+    text += `   Price:     $${close.toFixed(2)}  (${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%)  |  MCap: ${mc}  |  vs 52w High: ${fromHigh}%\n`;
     text += `   RS vs SPY: ${rsL.flag} ${rsL.text} outperformance  |  Pre-mkt Vol: ${vol.flag} ${vol.text}${avgVolStr ? '  |  Avg: ' + avgVolStr : ''}\n`;
     text += `   Setup:     ${proxL}  |  Base ATR: ${atrL.flag} ${atrL.text}${volDryUp ? '  |  🔥 Vol dry-up near high' : ''}\n`;
     if (daysToEarnings !== null) text += `   ⚡ EARNINGS ~${daysToEarnings}d away — pilot position only (half size)\n`;
@@ -514,7 +516,8 @@ function formatReport(stocks, regime, fx, date) {
                         (fx.usdStrong && USD_QUOTE.has(sym) && bias === 'LONG');
     const icon = contradicts ? '⚡' : bias === 'LONG' ? '🟢' : bias === 'SHORT' ? '🔴' : '🟡';
     const note = contradicts ? ' ← contradicts USD theme' : '';
-    text += `  ${icon} ${sym.padEnd(8)} ${priceStr.padStart(10)}  ${(change >= 0 ? '+' : '') + change?.toFixed(2) + '%'}  ${trend}${note}\n`;
+    const chgStr = change != null ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'n/a';
+    text += `  ${icon} ${sym.padEnd(8)} ${priceStr.padStart(10)}  ${chgStr}  ${trend}${note}\n`;
   });
 
   text += `\n${'─'.repeat(60)}\n`;
@@ -569,7 +572,7 @@ function formatReport(stocks, regime, fx, date) {
         </td>
         <td style="padding:14px 8px;text-align:right;">
           <strong style="color:#fff;">$${close.toFixed(2)}</strong><br>
-          <span style="color:${chgColor};font-size:12px;">${chg >= 0 ? '+' : ''}${chg.toFixed(1)}%</span>
+          <span style="color:${chgColor};font-size:12px;">${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%</span>
         </td>
         <td style="padding:14px 8px;text-align:right;">
           <span style="color:${rsColor};font-weight:bold;">${rsL.flag} ${rsL.text}</span><br>
@@ -712,7 +715,7 @@ function formatReport(stocks, regime, fx, date) {
             return `<tr style="border-bottom:1px solid #21262d;">
               <td style="padding:7px 4px;font-weight:bold;color:#fff;">${sym}</td>
               <td style="padding:7px 4px;text-align:right;color:#e6edf3;">${priceStr}</td>
-              <td style="padding:7px 4px;text-align:right;color:${chgColor};">${change >= 0 ? '+' : ''}${change?.toFixed(2)}%</td>
+              <td style="padding:7px 4px;text-align:right;color:${chgColor};">${change != null ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'n/a'}</td>
               <td style="padding:7px 4px;text-align:right;color:${(perfW??0) >= 0 ? '#00c853':'#ff5252'};">${fmtPct(perfW)}</td>
               <td style="padding:7px 4px;text-align:center;color:#8b949e;">${trend}</td>
               <td style="padding:7px 4px;text-align:center;color:${biasColor};font-weight:bold;">${biasIcon}</td>
@@ -769,8 +772,20 @@ async function main() {
 
   console.log(`\n🔍 Running Minervini Pre-Market Scanner — ${date}\n`);
 
-  // Fetch in parallel
-  const [raw, regimeRaw, fxRaw] = await Promise.all([fetchStocks(), fetchMarketRegime(), fetchFXData()]);
+  // Fetch in parallel — allSettled so one failure doesn't kill the whole report
+  const [rawResult, regimeResult, fxResult] = await Promise.allSettled([
+    fetchStocks(), fetchMarketRegime(), fetchFXData()
+  ]);
+
+  if (rawResult.status === 'rejected') {
+    console.error('❌ Stock scanner failed:', rawResult.reason.message);
+    process.exit(1);
+  }
+  const raw       = rawResult.value;
+  const regimeRaw = regimeResult.status === 'fulfilled' ? regimeResult.value : { data: [] };
+  const fxRaw     = fxResult.status    === 'fulfilled' ? fxResult.value    : { data: [] };
+  if (regimeResult.status === 'rejected') console.warn('⚠️  Regime fetch failed:', regimeResult.reason.message);
+  if (fxResult.status    === 'rejected') console.warn('⚠️  FX fetch failed:',     fxResult.reason.message);
 
   const regime = evaluateRegime(regimeRaw);
   const fx     = analyzeFX(fxRaw);
