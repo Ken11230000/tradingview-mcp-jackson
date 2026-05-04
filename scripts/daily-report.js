@@ -180,26 +180,108 @@ function analyzeDXY(dxyData) {
   return { close, change, sma50, sma200, perfW, perfM, above50, above200, trend };
 }
 
-// ── Fetch BTC + ETH (macro risk-on/off context, not trade signals) ───────────
+// ── Fetch BTC + ETH (macro risk-on/off context + crypto setups) ─────────────
 function fetchCrypto() {
   return scannerPost({
     symbols: { tickers: ['BITSTAMP:BTCUSD', 'BITSTAMP:ETHUSD'] },
-    columns: ['name','close','change','SMA50','SMA200','Perf.W','Perf.M']
+    columns: ['name','close','change','SMA50','SMA200','Perf.W','Perf.M','ATR','ADX']
   }, '/global/scan');
+}
+
+// Crypto-appropriate level calc: ATR-based stops (NOT Minervini's 7.5%)
+// because BTC/ETH routinely move 5%+ in normal days.
+function calcCryptoLevels(close, atr, bias) {
+  const stopDist = atr ? atr * 1.5 : close * 0.03;  // 1.5×ATR or 3% fallback
+  const entry = close;
+  if (bias === 'LONG') {
+    return { entry, stop: close - stopDist, t1: close + stopDist * 2, t2: close + stopDist * 3, stopDist };
+  }
+  if (bias === 'SHORT') {
+    return { entry, stop: close + stopDist, t1: close - stopDist * 2, t2: close - stopDist * 3, stopDist };
+  }
+  return { entry, stop: null, t1: null, t2: null, stopDist };
+}
+
+// Crypto-specific scoring (different factors than stocks — no earnings, no 52w high logic)
+function scoreCryptoSetup({ trend, change, perfW, sma200, close, adx }) {
+  let score = 0;
+  const isBull = trend === 'BULL' || trend === 'BULLISH';
+
+  // Trend conviction (max 30) — full BULL/BEAR scores higher than mixed
+  if (trend === 'BULL' || trend === 'BEAR') score += 30;
+  else if (trend === 'BULLISH' || trend === 'BEARISH') score += 15;
+
+  // Daily direction agrees with trend (max 20)
+  if (change != null) {
+    if (isBull && change > 0)       score += 20;
+    else if (!isBull && change < 0) score += 20;
+    else if (Math.abs(change) < 1)  score += 10;
+  }
+
+  // Weekly momentum agrees (max 20)
+  if (perfW != null) {
+    if (isBull && perfW > 0)       score += 20;
+    else if (!isBull && perfW < 0) score += 20;
+    else                            score += 5;
+  }
+
+  // Distance from SMA200 — strong trends have price well separated (max 15)
+  if (sma200 && close) {
+    const distPct = Math.abs((close / sma200 - 1) * 100);
+    if (distPct >= 10)     score += 15;
+    else if (distPct >= 5) score += 10;
+    else                   score += 5;
+  }
+
+  // ADX trend strength (max 15)
+  if (adx != null && adx > 0) {
+    if (adx >= 25)      score += 15;
+    else if (adx >= 20) score += 8;
+  } else {
+    score += 8;  // neutral fallback if ADX missing
+  }
+
+  let action, emoji, color;
+  if      (score >= 70) { action = 'BUY READY'; emoji = '🟢'; color = '#00c853'; }
+  else if (score >= 50) { action = 'STRONG';    emoji = '🟢'; color = '#69f0ae'; }
+  else if (score >= 30) { action = 'WATCH';     emoji = '🟡'; color = '#ffab00'; }
+  else                  { action = 'WAIT';      emoji = '🔴'; color = '#ff5252'; }
+
+  return { score, action, emoji, color };
 }
 
 function analyzeCrypto(cryptoData) {
   const rows = cryptoData?.data || [];
   let btc = null, eth = null;
   for (const r of rows) {
-    const [name, close, change, sma50, sma200, perfW, perfM] = r.d;
+    const [name, close, change, sma50, sma200, perfW, perfM, atr, adx] = r.d;
     if (!close) continue;
     const above50  = sma50  != null ? close > sma50  : null;
     const above200 = sma200 != null ? close > sma200 : null;
     const trend = (above50 && above200) ? 'BULL'
                 : (!above50 && !above200) ? 'BEAR'
                 : above50 ? 'BULLISH' : 'BEARISH';
-    const obj = { close, change, sma50, sma200, perfW, perfM, above50, above200, trend };
+
+    // Bias for setup direction
+    const bias = (trend === 'BULL' || trend === 'BULLISH') ? 'LONG'
+               : (trend === 'BEAR' || trend === 'BEARISH') ? 'SHORT'
+               : 'NEUTRAL';
+
+    const atrVal   = (typeof atr === 'number' && atr > 0) ? atr : null;
+    const adxVal   = (typeof adx === 'number' && adx > 0) ? adx : null;
+    const adxLabel = adxVal == null ? '?' :
+                     adxVal >= 25 ? `🔥 ${adxVal.toFixed(0)}` :
+                     adxVal >= 20 ? `✅ ${adxVal.toFixed(0)}` :
+                                    `⚠️ ${adxVal.toFixed(0)}`;
+    const levels   = calcCryptoLevels(close, atrVal, bias);
+    const distFromSma200 = sma200 ? ((close / sma200 - 1) * 100) : null;
+    const scoring  = scoreCryptoSetup({ trend, change, perfW, sma200, close, adx: adxVal });
+
+    const obj = {
+      close, change, sma50, sma200, perfW, perfM, above50, above200,
+      trend, bias, atr: atrVal, adx: adxVal, adxLabel, distFromSma200,
+      ...levels, ...scoring
+    };
     if (r.s.includes('BTC')) btc = obj;
     if (r.s.includes('ETH')) eth = obj;
   }
@@ -739,6 +821,30 @@ function formatReport(stocks, regime, fx, crypto, date) {
       text += `   ·   ETH $${crypto.eth.close.toLocaleString('en-US',{maximumFractionDigits:0})} ${ethArrow}${Math.abs(crypto.eth.change ?? 0).toFixed(2)}%  |  ${crypto.eth.trend}`;
     }
     text += `\n   Risk: ${crypto.riskMode === 'RISK ON' ? '🟢' : crypto.riskMode === 'RISK OFF' ? '🔴' : '🟡'} ${crypto.riskMode} — ${crypto.riskMsg}\n\n`;
+
+    // ── Crypto Setups (ATR-based, crypto-appropriate stops) ──
+    text += `🪙 CRYPTO SETUPS — ATR-based levels (NOT Minervini's 7.5% — too tight for crypto)\n\n`;
+    const cryptoMedals = ['🥇','🥈'];
+    const cryptos = [['BTC', crypto.btc], ['ETH', crypto.eth]].filter(([_, c]) => c);
+    cryptos.forEach(([sym, c], i) => {
+      const fmt    = v => v == null ? 'n/a' : '$' + v.toLocaleString('en-US', {maximumFractionDigits: sym === 'BTC' ? 0 : 0});
+      const dirArr = c.change >= 0 ? '↑' : '↓';
+      const dirIcon = c.bias === 'LONG' ? '📈 LONG' : c.bias === 'SHORT' ? '📉 SHORT' : '🟡 NEUTRAL';
+      text += `${cryptoMedals[i]} ${sym}  ${c.emoji} ${c.action}  (Score: ${c.score}/100)\n`;
+      text += `   ${fmt(c.close)} ${dirArr}${Math.abs(c.change ?? 0).toFixed(2)}%  |  Trend: ${c.trend}  |  ${dirIcon}\n`;
+      text += `   📊 ADX ${c.adxLabel}${c.distFromSma200 != null ? `  ·  ${c.distFromSma200 >= 0 ? '+' : ''}${c.distFromSma200.toFixed(1)}% from SMA200` : ''}${c.perfW != null ? `  ·  Wk ${c.perfW >= 0 ? '+' : ''}${c.perfW.toFixed(1)}%` : ''}\n`;
+      if (c.bias !== 'NEUTRAL' && c.stop != null) {
+        const stopPct = Math.abs((c.stop / c.close - 1) * 100).toFixed(1);
+        const t1Pct   = Math.abs((c.t1 / c.close - 1) * 100).toFixed(1);
+        const t2Pct   = Math.abs((c.t2 / c.close - 1) * 100).toFixed(1);
+        text += `   ──────────────────────────────────\n`;
+        text += `   📍 Entry ${fmt(c.entry)}  →  🛑 Stop ${fmt(c.stop)} (${c.bias === 'LONG' ? '-' : '+'}${stopPct}%)  →  🎯 T1 ${fmt(c.t1)} (${c.bias === 'LONG' ? '+' : '-'}${t1Pct}%)  →  🎯 T2 ${fmt(c.t2)} (${c.bias === 'LONG' ? '+' : '-'}${t2Pct}%)\n`;
+        text += `   R:R 2:1 / 3:1  ·  Stop is 1.5×ATR  ·  Targets at 2× and 3× the risk\n`;
+      } else {
+        text += `   ⚠️  No clear setup — trend mixed, wait for clearer direction.\n`;
+      }
+      text += `\n`;
+    });
   }
 
   text += `${'─'.repeat(60)}\n\n`;
@@ -970,6 +1076,65 @@ function formatReport(stocks, regime, fx, crypto, date) {
           <strong style="color:${crypto.riskColor};font-size:13px;">${crypto.riskMode === 'RISK ON' ? '🟢' : crypto.riskMode === 'RISK OFF' ? '🔴' : '🟡'} ${crypto.riskMode}</strong>
           <span style="color:#8b949e;font-size:12px;margin-left:6px;">— ${crypto.riskMsg}</span>
         </div>
+      </div>
+
+      <!-- Crypto Setups -->
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:16px;">
+        <p style="margin:0 0 4px;font-size:14px;font-weight:bold;color:#fff;">🪙 Crypto Setups</p>
+        <p style="margin:0 0 12px;color:#8b949e;font-size:12px;">ATR-based levels (1.5× ATR stops, 2:1 / 3:1 R:R) — crypto-appropriate, not Minervini's 7.5%</p>
+        ${[['BTC', crypto.btc, '#f7931a', '₿'], ['ETH', crypto.eth, '#627eea', 'Ξ']]
+          .filter(([_, c]) => c)
+          .map(([sym, c, coinColor, glyph]) => {
+            const fmt = v => v == null ? 'n/a' : '$' + v.toLocaleString('en-US', {maximumFractionDigits: 0});
+            const chgColor = c.change >= 0 ? '#00c853' : '#ff5252';
+            const dirIcon  = c.bias === 'LONG' ? '📈 LONG' : c.bias === 'SHORT' ? '📉 SHORT' : '🟡 NEUTRAL';
+            const dirColor = c.bias === 'LONG' ? '#00c853' : c.bias === 'SHORT' ? '#ff5252' : '#8b949e';
+            const stopPct  = c.stop ? Math.abs((c.stop / c.close - 1) * 100).toFixed(1) : null;
+            const t1Pct    = c.t1   ? Math.abs((c.t1 / c.close - 1) * 100).toFixed(1)   : null;
+            const t2Pct    = c.t2   ? Math.abs((c.t2 / c.close - 1) * 100).toFixed(1)   : null;
+            return `
+            <div style="background:#0d1117;border:1px solid #21262d;border-left:4px solid ${c.color};border-radius:8px;padding:14px;margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                <div>
+                  <span style="font-size:18px;color:${coinColor};font-weight:bold;">${glyph} ${sym}</span>
+                  <strong style="color:#fff;font-size:16px;margin-left:8px;">${fmt(c.close)}</strong>
+                  <span style="color:${chgColor};margin-left:6px;">${c.change >= 0 ? '+' : ''}${c.change?.toFixed(2) ?? '0.00'}%</span>
+                </div>
+                <div>
+                  <span style="background:${c.color};color:#000;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;">${c.emoji} ${c.action}</span>
+                  <span style="color:#8b949e;font-size:11px;margin-left:6px;">Score <strong style="color:#fff;">${c.score}/100</strong></span>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;font-size:11px;">
+                <span style="background:#161b22;padding:3px 8px;border-radius:10px;color:${dirColor};font-weight:bold;">${dirIcon}</span>
+                <span style="background:#161b22;padding:3px 8px;border-radius:10px;color:#e6edf3;">${c.trend}</span>
+                <span style="background:#161b22;padding:3px 8px;border-radius:10px;color:#e6edf3;">ADX ${c.adxLabel}</span>
+                ${c.distFromSma200 != null ? `<span style="background:#161b22;padding:3px 8px;border-radius:10px;color:#e6edf3;">${c.distFromSma200 >= 0 ? '+' : ''}${c.distFromSma200.toFixed(1)}% vs SMA200</span>` : ''}
+                ${c.perfW != null ? `<span style="background:#161b22;padding:3px 8px;border-radius:10px;color:${c.perfW >= 0 ? '#69f0ae' : '#ff5252'};">Wk ${c.perfW >= 0 ? '+' : ''}${c.perfW.toFixed(1)}%</span>` : ''}
+              </div>
+              ${c.bias !== 'NEUTRAL' && c.stop != null ? `
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;">
+                <div style="background:#161b22;border-radius:6px;padding:8px;">
+                  <div style="color:#8b949e;margin-bottom:2px;">📍 Entry</div>
+                  <div style="color:#4fc3f7;font-weight:bold;font-size:13px;">${fmt(c.entry)}</div>
+                </div>
+                <div style="background:#161b22;border-radius:6px;padding:8px;">
+                  <div style="color:#8b949e;margin-bottom:2px;">🛑 Stop (${c.bias === 'LONG' ? '-' : '+'}${stopPct}%)</div>
+                  <div style="color:#ff5252;font-weight:bold;font-size:13px;">${fmt(c.stop)}</div>
+                </div>
+                <div style="background:#161b22;border-radius:6px;padding:8px;">
+                  <div style="color:#8b949e;margin-bottom:2px;">🎯 T1 (${c.bias === 'LONG' ? '+' : '-'}${t1Pct}%)</div>
+                  <div style="color:#69f0ae;font-weight:bold;font-size:13px;">${fmt(c.t1)}</div>
+                </div>
+                <div style="background:#161b22;border-radius:6px;padding:8px;">
+                  <div style="color:#8b949e;margin-bottom:2px;">🎯 T2 (${c.bias === 'LONG' ? '+' : '-'}${t2Pct}%)</div>
+                  <div style="color:#b9f6ca;font-weight:bold;font-size:13px;">${fmt(c.t2)}</div>
+                </div>
+              </div>
+              <p style="margin:6px 0 0;color:#8b949e;font-size:10px;text-align:center;">R:R 2:1 / 3:1  ·  Stops at 1.5×ATR (crypto volatility-adjusted)</p>
+              ` : `<p style="color:#8b949e;font-size:12px;margin:0;">⚠️ No clear setup — trend is mixed, wait for clearer direction.</p>`}
+            </div>`;
+          }).join('')}
       </div>` : ''}
 
       ${fomcAlert ? `
