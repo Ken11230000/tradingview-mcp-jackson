@@ -180,6 +180,50 @@ function analyzeDXY(dxyData) {
   return { close, change, sma50, sma200, perfW, perfM, above50, above200, trend };
 }
 
+// ── Fetch BTC + ETH (macro risk-on/off context, not trade signals) ───────────
+function fetchCrypto() {
+  return scannerPost({
+    symbols: { tickers: ['BITSTAMP:BTCUSD', 'BITSTAMP:ETHUSD'] },
+    columns: ['name','close','change','SMA50','SMA200','Perf.W','Perf.M']
+  }, '/global/scan');
+}
+
+function analyzeCrypto(cryptoData) {
+  const rows = cryptoData?.data || [];
+  let btc = null, eth = null;
+  for (const r of rows) {
+    const [name, close, change, sma50, sma200, perfW, perfM] = r.d;
+    if (!close) continue;
+    const above50  = sma50  != null ? close > sma50  : null;
+    const above200 = sma200 != null ? close > sma200 : null;
+    const trend = (above50 && above200) ? 'BULL'
+                : (!above50 && !above200) ? 'BEAR'
+                : above50 ? 'BULLISH' : 'BEARISH';
+    const obj = { close, change, sma50, sma200, perfW, perfM, above50, above200, trend };
+    if (r.s.includes('BTC')) btc = obj;
+    if (r.s.includes('ETH')) eth = obj;
+  }
+  if (!btc) return null;
+
+  // Risk-on/off signal based on BTC trend + day's direction
+  // (BTC has ~0.7 correlation to QQQ since 2022 — useful for stock timing)
+  let riskMode, riskColor, riskMsg;
+  if (btc.trend === 'BULL' && btc.change >= 0) {
+    riskMode  = 'RISK ON';
+    riskColor = '#00c853';
+    riskMsg   = 'Crypto strong → bullish for tech/growth stocks';
+  } else if ((btc.trend === 'BEAR' || btc.trend === 'BEARISH') && btc.change < 0) {
+    riskMode  = 'RISK OFF';
+    riskColor = '#ff5252';
+    riskMsg   = 'Crypto weak → reduce size on tech/growth stocks';
+  } else {
+    riskMode  = 'MIXED';
+    riskColor = '#ffab00';
+    riskMsg   = 'Crypto vs stocks may diverge — confirm with QQQ direction';
+  }
+  return { btc, eth, riskMode, riskColor, riskMsg };
+}
+
 // ── Analyse FX pairs — trend, bias, ATR-based levels ─────────────────────────
 function analyzeFX(fxData) {
   const rows = fxData.data || [];
@@ -650,7 +694,7 @@ alertcondition(show and ta.crossover(close, t1_v),
 }
 
 // ── Format report (plain text + HTML) ────────────────────────────────────────
-function formatReport(stocks, regime, fx, date) {
+function formatReport(stocks, regime, fx, crypto, date) {
   const top = stocks.slice(0, 5);
   const marketCount = stocks.length;
   const { status } = regime;
@@ -683,6 +727,20 @@ function formatReport(stocks, regime, fx, date) {
   text += `\n${'─'.repeat(60)}\n\n`;
 
   text += `🌍 MARKET REGIME\n${regimeBannerText(regime)}\n\n`;
+
+  // ── Cross-asset context (BTC/ETH macro signal) ──
+  if (crypto?.btc) {
+    const btcArrow = crypto.btc.change >= 0 ? '↑' : '↓';
+    const ethArrow = crypto.eth?.change >= 0 ? '↑' : '↓';
+    text += `${'─'.repeat(60)}\n\n`;
+    text += `🌐 CROSS-ASSET CONTEXT\n`;
+    text += `   BTC $${crypto.btc.close.toLocaleString('en-US',{maximumFractionDigits:0})} ${btcArrow}${Math.abs(crypto.btc.change ?? 0).toFixed(2)}%  |  ${crypto.btc.trend}`;
+    if (crypto.eth) {
+      text += `   ·   ETH $${crypto.eth.close.toLocaleString('en-US',{maximumFractionDigits:0})} ${ethArrow}${Math.abs(crypto.eth.change ?? 0).toFixed(2)}%  |  ${crypto.eth.trend}`;
+    }
+    text += `\n   Risk: ${crypto.riskMode === 'RISK ON' ? '🟢' : crypto.riskMode === 'RISK OFF' ? '🔴' : '🟡'} ${crypto.riskMode} — ${crypto.riskMsg}\n\n`;
+  }
+
   text += `${'─'.repeat(60)}\n\n`;
   text += `📈 ${marketCount} stocks passed Minervini Trend Template — Top 5 by RS vs SPY:\n\n`;
 
@@ -900,6 +958,20 @@ function formatReport(stocks, regime, fx, date) {
 
       ${bearWarning}
 
+      ${crypto?.btc ? `
+      <!-- Cross-Asset Context -->
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:16px;">
+        <p style="margin:0 0 10px;font-size:14px;font-weight:bold;color:#fff;">🌐 Cross-Asset Context</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:13px;margin-bottom:10px;">
+          <span><strong style="color:#f7931a;">₿ BTC</strong> <strong style="color:#fff;">$${crypto.btc.close.toLocaleString('en-US',{maximumFractionDigits:0})}</strong> <span style="color:${crypto.btc.change >= 0 ? '#00c853' : '#ff5252'};">${crypto.btc.change >= 0 ? '+' : ''}${crypto.btc.change?.toFixed(2) ?? '0.00'}%</span> <span style="background:${crypto.btc.trend === 'BULL' ? '#1a3d00' : crypto.btc.trend === 'BEAR' ? '#3d0014' : '#3d2000'};color:${crypto.btc.trend === 'BULL' ? '#69f0ae' : crypto.btc.trend === 'BEAR' ? '#ff5252' : '#ffab00'};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:bold;margin-left:4px;">${crypto.btc.trend}</span></span>
+          ${crypto.eth ? `<span><strong style="color:#627eea;">Ξ ETH</strong> <strong style="color:#fff;">$${crypto.eth.close.toLocaleString('en-US',{maximumFractionDigits:0})}</strong> <span style="color:${crypto.eth.change >= 0 ? '#00c853' : '#ff5252'};">${crypto.eth.change >= 0 ? '+' : ''}${crypto.eth.change?.toFixed(2) ?? '0.00'}%</span> <span style="background:${crypto.eth.trend === 'BULL' ? '#1a3d00' : crypto.eth.trend === 'BEAR' ? '#3d0014' : '#3d2000'};color:${crypto.eth.trend === 'BULL' ? '#69f0ae' : crypto.eth.trend === 'BEAR' ? '#ff5252' : '#ffab00'};padding:2px 8px;border-radius:8px;font-size:11px;font-weight:bold;margin-left:4px;">${crypto.eth.trend}</span></span>` : ''}
+        </div>
+        <div style="background:#0d1117;border-left:4px solid ${crypto.riskColor};padding:10px 12px;border-radius:4px;">
+          <strong style="color:${crypto.riskColor};font-size:13px;">${crypto.riskMode === 'RISK ON' ? '🟢' : crypto.riskMode === 'RISK OFF' ? '🔴' : '🟡'} ${crypto.riskMode}</strong>
+          <span style="color:#8b949e;font-size:12px;margin-left:6px;">— ${crypto.riskMsg}</span>
+        </div>
+      </div>` : ''}
+
       ${fomcAlert ? `
       <!-- FOMC Warning -->
       <div style="background:#2d1f00;border:1px solid #ffab00;border-radius:8px;padding:14px;margin-bottom:16px;">
@@ -1068,8 +1140,8 @@ async function main() {
   console.log(`\n🔍 Running Minervini Pre-Market Scanner — ${date}\n`);
 
   // Fetch in parallel — allSettled so one failure doesn't kill the whole report
-  const [rawResult, regimeResult, fxResult, dxyResult] = await Promise.allSettled([
-    fetchStocks(), fetchMarketRegime(), fetchFXData(), fetchDXY()
+  const [rawResult, regimeResult, fxResult, dxyResult, cryptoResult] = await Promise.allSettled([
+    fetchStocks(), fetchMarketRegime(), fetchFXData(), fetchDXY(), fetchCrypto()
   ]);
 
   if (rawResult.status === 'rejected') {
@@ -1080,14 +1152,17 @@ async function main() {
   const regimeRaw = regimeResult.status === 'fulfilled' ? regimeResult.value : { data: [] };
   const fxRaw     = fxResult.status    === 'fulfilled' ? fxResult.value    : { data: [] };
   const dxyRaw    = dxyResult.status   === 'fulfilled' ? dxyResult.value   : null;
+  const cryptoRaw = cryptoResult.status === 'fulfilled' ? cryptoResult.value : null;
   if (regimeResult.status === 'rejected') console.warn('⚠️  Regime fetch failed:', regimeResult.reason.message);
   if (fxResult.status    === 'rejected') console.warn('⚠️  FX fetch failed:',     fxResult.reason.message);
   if (dxyResult.status   === 'rejected') console.warn('⚠️  DXY fetch failed:',    dxyResult.reason.message);
+  if (cryptoResult.status=== 'rejected') console.warn('⚠️  Crypto fetch failed:', cryptoResult.reason.message);
 
   const regime = evaluateRegime(regimeRaw);
   const fx     = analyzeFX(fxRaw);
   fx.dxy        = analyzeDXY(dxyRaw);
   fx.econAlerts = getEconAlerts();
+  const crypto = analyzeCrypto(cryptoRaw);
   console.log(`🌍 Market Regime: ${regime.status} (SPY ${regime.spy?.above ? '✅ above' : '🔴 below'} 200SMA | QQQ ${regime.qqq?.above ? '✅ above' : '🔴 below'} 200SMA)`);
   console.log(`   SPY 1yr: ${regime.spy?.perfY?.toFixed(1)}%  |  SPY used as RS benchmark\n`);
 
@@ -1157,7 +1232,7 @@ async function main() {
   fx.setups.forEach(s => console.log(`   ${s.bias === 'LONG' ? '🟢' : '🔴'} ${s.sym} ${s.bias} @ ${s.entry} | Stop: ${s.stop} | T1: ${s.t1}`));
   console.log('');
 
-  const { text, html } = formatReport(stocks, regime, fx, date);
+  const { text, html } = formatReport(stocks, regime, fx, crypto, date);
   console.log(text);
 
   if (DRY_RUN) {
