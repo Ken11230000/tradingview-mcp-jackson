@@ -126,10 +126,12 @@ function fetchStocks() {
       'name', 'close', 'change', 'SMA50', 'SMA200',
       'price_52_week_high', 'price_52_week_low',
       'market_cap_basic', 'exchange', 'description',
-      'relative_volume_10d_calc',          // [10] pre-market relative volume
-      'Perf.Y',                            // [11] 1-year % performance for RS ranking
-      'ATR',                               // [12] Average True Range — base tightness
-      'average_volume_10d_calc'            // [13] 10-day avg daily volume — liquidity gate
+      'relative_volume_10d_calc',                  // [10] pre-market relative volume
+      'Perf.Y',                                    // [11] 1-year % performance for RS ranking
+      'ATR',                                       // [12] Average True Range — base tightness
+      'average_volume_10d_calc',                   // [13] 10-day avg daily volume — liquidity gate
+      'earnings_per_share_diluted_yoy_growth_fq',  // [14] Quarterly EPS YoY growth (Minervini fundamental)
+      'total_revenue_yoy_growth_fq'                // [15] Quarterly revenue YoY growth (Minervini fundamental)
     ],
     sort: { sortBy: 'market_cap_basic', sortOrder: 'desc' },
     range: [0, 500]
@@ -452,26 +454,32 @@ function applyTrendTemplate(rows, spyPerfY) {
   return rows
     .filter(r => {
       const [,cl,,sma50,sma200,high52,low52,mktCap,exch] = r.d;
-      const avgVol = r.d[13];
+      const avgVol  = r.d[13];
+      const epsYoY  = r.d[14];   // quarterly EPS YoY growth %
+      const revYoY  = r.d[15];   // quarterly revenue YoY growth %
       const ex = (exch || r.s.split(':')[0] || '').toUpperCase();
       if (!sma50 || !sma200 || !high52) return false;
       return (
-        allowed.has(ex)                    &&
-        cl > sma50                         &&   // 1. Price > 50 SMA
-        cl > sma200                        &&   // 2. Price > 200 SMA
-        sma50 > sma200                     &&   // 3. 50 SMA > 200 SMA (Stage 2)
-        cl >= high52 * 0.75                &&   // 4. Within 25% of 52-week high
-        (!low52  || cl >= low52  * 1.30)   &&   // 5. ≥30% above 52w low — confirmed Stage 2
-        (!avgVol || avgVol >= 400000)            // 6. Min 400K avg daily volume — liquidity gate
+        allowed.has(ex)                          &&
+        cl > sma50                               &&   // 1. Price > 50 SMA
+        cl > sma200                              &&   // 2. Price > 200 SMA
+        sma50 > sma200                           &&   // 3. 50 SMA > 200 SMA (Stage 2)
+        cl >= high52 * 0.75                      &&   // 4. Within 25% of 52-week high
+        (!low52  || cl >= low52  * 1.30)         &&   // 5. ≥30% above 52w low — confirmed Stage 2
+        (!avgVol || avgVol >= 400000)            &&   // 6. Min 400K avg daily volume — liquidity gate
+        (epsYoY == null || epsYoY >= -10)        &&   // 7. EPS not in steep decline (soft filter)
+        (revYoY == null || revYoY >= -5)               // 8. Revenue not collapsing (soft filter)
       );
     })
     .map(r => {
       const [, cl, , , , high52] = r.d;
       const perfY      = r.d[11] || 0;
       const relVol     = r.d[10] || 0;
-      const atr    = r.d[12] ?? null;
-      const avgVol = r.d[13] ?? null;
-      const rs     = perfY - spyPerfY;   // outperformance vs SPY
+      const atr        = r.d[12] ?? null;
+      const avgVol     = r.d[13] ?? null;
+      const epsYoY     = r.d[14] ?? null;
+      const revYoY     = r.d[15] ?? null;
+      const rs         = perfY - spyPerfY;   // outperformance vs SPY
 
       // ── Quality signals ──────────────────────────────────────────────────
       // ATR as % of price — measures how tight/coiled the base is
@@ -486,7 +494,7 @@ function applyTrendTemplate(rows, spyPerfY) {
       // = supply exhausted, coiling for breakout
       const volDryUp = relVol > 0 && relVol < 0.5 && cl >= high52 * 0.97;
 
-      return { r, perfY, relVol, rs, atr, avgVol, atrPct, proximityTier, volDryUp, daysToEarnings: null };
+      return { r, perfY, relVol, rs, atr, avgVol, atrPct, proximityTier, volDryUp, daysToEarnings: null, epsYoY, revYoY };
     })
     // Sort: highest RS (outperformance vs SPY) first — true market leaders
     .sort((a, b) => b.rs - a.rs);
@@ -539,33 +547,52 @@ function proximityLabel(tier) {
 
 // ── Setup scoring (0-100) → at-a-glance action label ─────────────────────────
 // Combines all quality signals into a single decision: READY / STRONG / WATCH / WAIT
-function scoreSetup({ proximityTier, atrPct, volDryUp, relVol, rs, daysToEarnings }) {
+function scoreSetup({ proximityTier, atrPct, volDryUp, relVol, rs, daysToEarnings, epsYoY, revYoY }) {
   let score = 0;
 
-  // Proximity to 52w high (max 25) — closer to breakout = better
-  if (proximityTier === 'elite')   score += 25;
-  else if (proximityTier === 'strong') score += 12;
+  // Proximity to 52w high (max 20) — closer to breakout = better
+  if (proximityTier === 'elite')   score += 20;
+  else if (proximityTier === 'strong') score += 10;
 
-  // ATR tightness (max 20) — coiled base beats wide volatility
+  // ATR tightness (max 15) — coiled base beats wide volatility
   if (atrPct != null) {
-    if (atrPct < 1.5) score += 20;
-    else if (atrPct < 3.0) score += 10;
+    if (atrPct < 1.5) score += 15;
+    else if (atrPct < 3.0) score += 8;
   }
 
-  // Pre-breakout volume dry-up (max 15) — supply exhaustion signal
-  if (volDryUp) score += 15;
+  // Pre-breakout volume dry-up (max 12) — supply exhaustion signal
+  if (volDryUp) score += 12;
 
-  // Pre-market volume confirmation (max 15)
-  if (relVol >= 2.0) score += 15;
-  else if (relVol >= 1.0) score += 7;
+  // Pre-market volume confirmation (max 12)
+  if (relVol >= 2.0) score += 12;
+  else if (relVol >= 1.0) score += 6;
 
-  // RS strength vs SPY (max 15) — leadership filter
-  if (rs >= 100) score += 15;
-  else if (rs >= 20) score += 7;
+  // RS strength vs SPY (max 12) — leadership filter
+  if (rs >= 100) score += 12;
+  else if (rs >= 20) score += 6;
 
-  // Earnings risk (max 10) — proximity to earnings = binary risk
-  if (daysToEarnings == null || daysToEarnings > 15) score += 10;
-  else if (daysToEarnings > 7) score += 5;
+  // Earnings risk (max 8) — proximity to earnings = binary risk
+  if (daysToEarnings == null || daysToEarnings > 15) score += 8;
+  else if (daysToEarnings > 7) score += 4;
+
+  // ── Fundamentals (max 21) — Minervini's other half: SEPA fundamentals ──
+  // EPS YoY growth (max 12)
+  if (epsYoY != null) {
+    if (epsYoY >= 50)      score += 12;  // Exceptional
+    else if (epsYoY >= 25) score += 8;   // Minervini's threshold
+    else if (epsYoY >= 0)  score += 3;   // Positive but weak
+    // negative EPS = 0 points (and filtered if very bad)
+  } else {
+    score += 4; // neutral fallback when data missing
+  }
+  // Revenue YoY growth (max 9)
+  if (revYoY != null) {
+    if (revYoY >= 25)      score += 9;
+    else if (revYoY >= 15) score += 6;
+    else if (revYoY >= 0)  score += 2;
+  } else {
+    score += 3;  // neutral fallback
+  }
 
   let action, emoji, color;
   if      (score >= 70) { action = 'BUY READY'; emoji = '🟢'; color = '#00c853'; }
@@ -775,8 +802,100 @@ alertcondition(show and ta.crossover(close, t1_v),
 `;
 }
 
+// ── Trade Journal — track outcomes of past picks ─────────────────────────────
+// Saves picks to disk, updates max/min prices each run, classifies outcomes.
+// After 30+ days, you have personal data on whether the strategy actually works.
+
+const JOURNAL_PATH = path.join(__dirname, '.trade-journal.json');
+
+function loadJournal() {
+  try {
+    if (!fs.existsSync(JOURNAL_PATH)) return [];
+    return JSON.parse(fs.readFileSync(JOURNAL_PATH, 'utf-8'));
+  } catch { return []; }
+}
+
+function saveJournal(journal) {
+  fs.writeFileSync(JOURNAL_PATH, JSON.stringify(journal, null, 2));
+}
+
+// Update active picks with current price, max-since-pick, min-since-pick.
+// scanData is the existing fetchStocks result so we can look up live prices
+// without making extra API calls (covers ~95% of active picks).
+function updateJournalOutcomes(journal, scanData) {
+  const priceMap = new Map();
+  for (const r of scanData?.data || []) {
+    const sym = r.d[0];
+    const close = r.d[1];
+    if (sym && close) priceMap.set(sym, close);
+  }
+
+  const now = new Date();
+  for (const e of journal) {
+    if (e.status !== 'ACTIVE') continue;
+    const cur = priceMap.get(e.symbol);
+    if (cur == null) continue;  // stock fell out of top-500 universe; skip update
+    e.currentPrice = cur;
+    e.maxSincePick = Math.max(e.maxSincePick ?? e.entry, cur);
+    e.minSincePick = Math.min(e.minSincePick ?? e.entry, cur);
+    e.daysActive   = Math.round((now - new Date(e.pickDate)) / 86400000);
+    e.lastUpdated  = now.toISOString().slice(0, 10);
+
+    // Outcome detection — strict: price must have actually breached
+    if (e.maxSincePick >= e.target2)      e.status = 'T2_HIT';
+    else if (e.maxSincePick >= e.target1) e.status = 'T1_HIT';
+    else if (e.minSincePick <= e.stop)    e.status = 'STOPPED_OUT';
+    else if (e.daysActive > 60)           e.status = 'TIMEOUT';
+  }
+}
+
+// Append new picks (skip duplicates within last 7 days)
+function appendNewPicks(journal, scoredTop, today) {
+  const recentSyms = new Set(
+    journal
+      .filter(e => (new Date(today) - new Date(e.pickDate)) / 86400000 < 7)
+      .map(e => e.symbol)
+  );
+  for (const s of scoredTop) {
+    const sym = s.r.d[0];
+    if (recentSyms.has(sym)) continue;  // already tracking
+    const close = s.r.d[1];
+    const { stop, target1, target2 } = calcLevels(close);
+    journal.push({
+      symbol: sym,
+      pickDate: today,
+      entry: +close.toFixed(2),
+      stop, target1, target2,
+      rs: +s.rs.toFixed(0),
+      score: s.score,
+      action: s.action,
+      currentPrice: close,
+      maxSincePick: close,
+      minSincePick: close,
+      status: 'ACTIVE',
+      daysActive: 0,
+      lastUpdated: today
+    });
+  }
+}
+
+// Compute aggregate stats for the report
+function journalStats(journal) {
+  const cutoff = Date.now() - 30 * 86400000;  // last 30 days
+  const recent = journal.filter(e => new Date(e.pickDate).getTime() >= cutoff);
+  const counts = { ACTIVE: 0, T1_HIT: 0, T2_HIT: 0, STOPPED_OUT: 0, TIMEOUT: 0 };
+  for (const e of recent) counts[e.status] = (counts[e.status] || 0) + 1;
+
+  const wins   = counts.T1_HIT + counts.T2_HIT;
+  const losses = counts.STOPPED_OUT;
+  const closed = wins + losses;
+  const winRate = closed > 0 ? Math.round((wins / closed) * 100) : null;
+
+  return { total: recent.length, ...counts, wins, losses, closed, winRate, recent };
+}
+
 // ── Format report (plain text + HTML) ────────────────────────────────────────
-function formatReport(stocks, regime, fx, crypto, date) {
+function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   const top = stocks.slice(0, 5);
   const marketCount = stocks.length;
   const { status } = regime;
@@ -850,7 +969,7 @@ function formatReport(stocks, regime, fx, crypto, date) {
   text += `${'─'.repeat(60)}\n\n`;
   text += `📈 ${marketCount} stocks passed Minervini Trend Template — Top 5 by RS vs SPY:\n\n`;
 
-  scoredTop.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji }, i) => {
+  scoredTop.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, epsYoY, revYoY }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -862,10 +981,13 @@ function formatReport(stocks, regime, fx, crypto, date) {
     const avgVolStr = avgVol
       ? (avgVol >= 1e6 ? (avgVol / 1e6).toFixed(1) + 'M' : (avgVol / 1e3).toFixed(0) + 'K') + '/day'
       : '';
+    const fundFlag = v => v == null ? '?' : v >= 25 ? '🔥' : v >= 0 ? '✅' : '🔴';
+    const fundStr  = v => v == null ? 'n/a' : (v >= 0 ? '+' : '') + v.toFixed(0) + '%';
     text += `${MEDALS[i]} ${name}  ${emoji} ${action}  (Score: ${score}/100)\n`;
     text += `   ${desc?.slice(0, 40) || ''}\n`;
     text += `   $${close.toFixed(2)} (${chg >= 0 ? '+' : ''}${chg?.toFixed(1) ?? '0.0'}%)  |  ${mc}  |  ${fromHigh}% from 52w high\n`;
     text += `   📊 ${proxL} setup  ·  Base ATR ${atrL.flag} ${atrL.text}  ·  RS ${rsL.flag} ${rsL.text}\n`;
+    text += `   💰 EPS YoY: ${fundFlag(epsYoY)} ${fundStr(epsYoY)}  ·  Revenue YoY: ${fundFlag(revYoY)} ${fundStr(revYoY)}\n`;
     text += `   📈 Pre-mkt Vol: ${vol.flag} ${vol.text}${avgVolStr ? ' (avg ' + avgVolStr + ')' : ''}${volDryUp ? '  ·  🔥 Vol dry-up near high' : ''}\n`;
     if (daysToEarnings != null) text += `   ⚡ EARNINGS ~${daysToEarnings}d away — pilot position only (half size)\n`;
     text += `   ──────────────────────────────────\n`;
@@ -930,6 +1052,29 @@ function formatReport(stocks, regime, fx, crypto, date) {
     text += `  ${icon} ${sym.padEnd(8)} ${priceStr.padStart(10)}  ${chgStr.padStart(7)}  ADX ${(adxLabel || '?').padEnd(8)} ${trend}${note}\n`;
   });
 
+  // ── Trade Journal section (past picks performance) ──
+  if (journalSummary && journalSummary.total > 0) {
+    text += `\n${'─'.repeat(60)}\n\n`;
+    text += `📒 PAST PICKS PERFORMANCE — Last 30 Days\n\n`;
+    text += `   Total picks tracked: ${journalSummary.total}\n`;
+    text += `   ✅ Wins (T1/T2 hit): ${journalSummary.wins}  ·  🛑 Losses (stopped): ${journalSummary.losses}  ·  🟡 Active: ${journalSummary.ACTIVE}\n`;
+    if (journalSummary.winRate != null) {
+      text += `   📊 Win rate: ${journalSummary.winRate}% (${journalSummary.wins}/${journalSummary.closed} closed)\n`;
+    } else {
+      text += `   📊 Win rate: not enough closed trades yet\n`;
+    }
+    // Show last 5 most recent picks with outcomes
+    const recentList = journalSummary.recent.slice(-7).reverse();
+    if (recentList.length > 0) {
+      text += `\n   Recent picks:\n`;
+      const statusIcon = { ACTIVE: '🟡', T1_HIT: '✅', T2_HIT: '🎯', STOPPED_OUT: '🛑', TIMEOUT: '⏱️' };
+      recentList.forEach(e => {
+        const pnlPct = e.currentPrice ? ((e.currentPrice / e.entry - 1) * 100).toFixed(1) : 'n/a';
+        text += `     ${statusIcon[e.status] || '?'} ${e.symbol.padEnd(6)} picked ${e.pickDate}  ·  ${e.status.padEnd(11)}  ·  P/L: ${pnlPct >= 0 ? '+' : ''}${pnlPct}%\n`;
+      });
+    }
+  }
+
   text += `\n${'─'.repeat(60)}\n`;
   if (status === 'BEAR') text += `🔴 BEAR MARKET WARNING: Minervini holds 100% CASH in bear markets.\n`;
   text += `⚠️  Confirm volume is 40-50%+ above average BEFORE entering.\n`;
@@ -951,7 +1096,7 @@ function formatReport(stocks, regime, fx, crypto, date) {
   const qqqRow = regime.qqq ? `QQQ $${regime.qqq.close?.toFixed(2)} | 200SMA $${regime.qqq.sma200?.toFixed(2)} | ${regime.qqq.above ? '✅ Above' : '🔴 Below'}` : '';
 
   // Replace wide table with stacked cards — much better mobile readability
-  const stockCards = scoredTop.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, color }, i) => {
+  const stockCards = scoredTop.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, color, epsYoY, revYoY }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -997,12 +1142,18 @@ function formatReport(stocks, regime, fx, crypto, date) {
       </div>
 
       <!-- Quality badges -->
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;font-size:12px;">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;font-size:12px;">
         <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">${proxL}</span>
         <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">ATR ${atrL.flag} ${atrL.text}</span>
         <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">RS ${rsL.flag} ${rsL.text}</span>
         <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:#e6edf3;">Vol ${vol.flag} ${vol.text}${avgVolStr ? ' / ' + avgVolStr : ''}</span>
         ${volDryUp ? `<span style="background:#1a3d00;padding:4px 10px;border-radius:12px;color:#69f0ae;">🔥 Vol dry-up</span>` : ''}
+      </div>
+
+      <!-- Fundamentals row (Minervini's other half) -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;font-size:12px;">
+        <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:${(epsYoY ?? 0) >= 25 ? '#69f0ae' : (epsYoY ?? 0) >= 0 ? '#e6edf3' : '#ff5252'};">💰 EPS YoY: ${epsYoY != null ? (epsYoY >= 0 ? '+' : '') + epsYoY.toFixed(0) + '%' : 'n/a'}${(epsYoY ?? -999) >= 25 ? ' 🔥' : ''}</span>
+        <span style="background:#0d1117;padding:4px 10px;border-radius:12px;color:${(revYoY ?? 0) >= 15 ? '#69f0ae' : (revYoY ?? 0) >= 0 ? '#e6edf3' : '#ff5252'};">Revenue YoY: ${revYoY != null ? (revYoY >= 0 ? '+' : '') + revYoY.toFixed(0) + '%' : 'n/a'}${(revYoY ?? -999) >= 25 ? ' 🔥' : ''}</span>
       </div>
 
       <!-- Trade levels -->
@@ -1257,6 +1408,50 @@ function formatReport(stocks, regime, fx, crypto, date) {
         </table>
       </div>
 
+      ${journalSummary && journalSummary.total > 0 ? `
+      <!-- Past Picks Performance -->
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:16px;">
+        <p style="margin:0 0 6px;font-size:14px;font-weight:bold;color:#fff;">📒 Past Picks Performance — Last 30 Days</p>
+        <p style="margin:0 0 12px;color:#8b949e;font-size:12px;">Tracking your actual outcomes builds personal data that beats any backtest.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px;margin-bottom:12px;">
+          <span style="background:#0d1117;color:#e6edf3;padding:4px 10px;border-radius:12px;">Total: <strong>${journalSummary.total}</strong></span>
+          <span style="background:#0d1117;color:#69f0ae;padding:4px 10px;border-radius:12px;">✅ Wins: <strong>${journalSummary.wins}</strong></span>
+          <span style="background:#0d1117;color:#ff5252;padding:4px 10px;border-radius:12px;">🛑 Losses: <strong>${journalSummary.losses}</strong></span>
+          <span style="background:#0d1117;color:#ffab00;padding:4px 10px;border-radius:12px;">🟡 Active: <strong>${journalSummary.ACTIVE}</strong></span>
+          ${journalSummary.winRate != null ? `<span style="background:${journalSummary.winRate >= 50 ? '#1a3d00' : '#3d0014'};color:${journalSummary.winRate >= 50 ? '#69f0ae' : '#ff5252'};padding:4px 10px;border-radius:12px;font-weight:bold;">📊 Win rate: ${journalSummary.winRate}%</span>` : ''}
+        </div>
+        ${journalSummary.recent.length > 0 ? `
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="color:#8b949e;font-size:10px;text-transform:uppercase;">
+            <th style="padding:6px 4px;text-align:left;">Symbol</th>
+            <th style="padding:6px 4px;text-align:left;">Picked</th>
+            <th style="padding:6px 4px;text-align:left;">Status</th>
+            <th style="padding:6px 4px;text-align:right;">Entry → Now</th>
+            <th style="padding:6px 4px;text-align:right;">P/L</th>
+          </tr></thead>
+          <tbody>
+          ${journalSummary.recent.slice(-7).reverse().map(e => {
+            const pnl = e.currentPrice ? ((e.currentPrice / e.entry - 1) * 100) : null;
+            const pnlColor = pnl == null ? '#8b949e' : pnl >= 0 ? '#69f0ae' : '#ff5252';
+            const statusBadge = {
+              ACTIVE: '<span style="color:#ffab00;">🟡 Active</span>',
+              T1_HIT: '<span style="color:#00c853;">✅ T1 Hit</span>',
+              T2_HIT: '<span style="color:#00c853;">🎯 T2 Hit</span>',
+              STOPPED_OUT: '<span style="color:#ff5252;">🛑 Stopped</span>',
+              TIMEOUT: '<span style="color:#8b949e;">⏱️ Timeout</span>'
+            }[e.status] || e.status;
+            return `<tr style="border-bottom:1px solid #21262d;">
+              <td style="padding:7px 4px;font-weight:bold;color:#fff;">${e.symbol}</td>
+              <td style="padding:7px 4px;color:#8b949e;">${e.pickDate}</td>
+              <td style="padding:7px 4px;">${statusBadge}</td>
+              <td style="padding:7px 4px;text-align:right;color:#e6edf3;">$${e.entry.toFixed(2)} → $${e.currentPrice ? e.currentPrice.toFixed(2) : '—'}</td>
+              <td style="padding:7px 4px;text-align:right;color:${pnlColor};font-weight:bold;">${pnl != null ? (pnl >= 0 ? '+' : '') + pnl.toFixed(1) + '%' : 'n/a'}</td>
+            </tr>`;
+          }).join('')}
+          </tbody>
+        </table>` : ''}
+      </div>` : ''}
+
       <!-- Risk Rules -->
       <div style="background:#161b22;border:1px solid #f85149;border-radius:8px;padding:16px;margin-bottom:16px;">
         <p style="margin:0 0 10px;color:#f85149;font-weight:bold;">⚠️ Risk Rules — Non-Negotiable</p>
@@ -1397,7 +1592,18 @@ async function main() {
   fx.setups.forEach(s => console.log(`   ${s.bias === 'LONG' ? '🟢' : '🔴'} ${s.sym} ${s.bias} @ ${s.entry} | Stop: ${s.stop} | T1: ${s.t1}`));
   console.log('');
 
-  const { text, html } = formatReport(stocks, regime, fx, crypto, date);
+  // ── Trade Journal: load, update, append today's picks, compute stats ──────
+  const today = new Date().toISOString().slice(0, 10);
+  const journal = loadJournal();
+  updateJournalOutcomes(journal, raw);
+  // Score today's top 5 first so we have action labels for the journal
+  const scoredForJournal = stocks.slice(0, 5).map(s => ({ ...s, ...scoreSetup(s) }));
+  appendNewPicks(journal, scoredForJournal, today);
+  saveJournal(journal);
+  const journalSummary = journalStats(journal);
+  console.log(`📒 Trade Journal: ${journalSummary.total} picks tracked (last 30d)  |  ${journalSummary.wins} wins · ${journalSummary.losses} losses · ${journalSummary.ACTIVE} active${journalSummary.winRate != null ? `  |  Win rate ${journalSummary.winRate}%` : ''}\n`);
+
+  const { text, html } = formatReport(stocks, regime, fx, crypto, journalSummary, date);
   console.log(text);
 
   if (DRY_RUN) {

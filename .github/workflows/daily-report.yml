@@ -7,6 +7,9 @@ on:
   workflow_dispatch:
     # Allows manual trigger from GitHub Actions tab (useful if a run is missed)
 
+permissions:
+  contents: write   # needed to commit trade journal back to repo
+
 jobs:
   send-report:
     runs-on: ubuntu-latest
@@ -31,3 +34,15 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           FINNHUB_KEY: ${{ secrets.FINNHUB_KEY }}
+
+      - name: Commit updated trade journal
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f scripts/.trade-journal.json ]; then
+            git add scripts/.trade-journal.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Update trade journal — $(date -u +%Y-%m-%d)"
+              git push
+            fi
+          fi
