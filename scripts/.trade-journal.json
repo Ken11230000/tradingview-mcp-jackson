@@ -13,8 +13,8 @@
     "maxSincePick": 1255.86,
     "minSincePick": 1255.86,
     "status": "ACTIVE",
-    "daysActive": 1,
-    "lastUpdated": "2026-05-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-05-05"
   },
   {
     "symbol": "BE",
@@ -30,8 +30,8 @@
     "maxSincePick": 288.64,
     "minSincePick": 288.64,
     "status": "ACTIVE",
-    "daysActive": 1,
-    "lastUpdated": "2026-05-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-05-05"
   },
   {
     "symbol": "LITE",
@@ -47,8 +47,8 @@
     "maxSincePick": 976.18,
     "minSincePick": 976.18,
     "status": "ACTIVE",
-    "daysActive": 1,
-    "lastUpdated": "2026-05-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-05-05"
   },
   {
     "symbol": "WDC",
@@ -64,8 +64,8 @@
     "maxSincePick": 442.36,
     "minSincePick": 442.36,
     "status": "ACTIVE",
-    "daysActive": 1,
-    "lastUpdated": "2026-05-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-05-05"
   },
   {
     "symbol": "STX",
@@ -81,7 +81,7 @@
     "maxSincePick": 738.54,
     "minSincePick": 738.54,
     "status": "ACTIVE",
-    "daysActive": 1,
-    "lastUpdated": "2026-05-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-05-05"
   }
 ]
