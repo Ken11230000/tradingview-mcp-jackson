@@ -2,13 +2,24 @@ name: 📊 Daily Pre-Market Report
 
 on:
   schedule:
-    # 12:30 UTC = 8:30am EST = 1:30pm BST (Mon–Fri)
-    - cron: '30 12 * * 1-5'
+    # Multiple attempts because GitHub Actions free-tier scheduler is unreliable.
+    # The script writes a marker file (.last-sent.txt) after sending, and
+    # subsequent runs same day exit early — so only ONE email per day.
+    - cron: '30 12 * * 1-5'   # Primary: 12:30 UTC = 1:30pm BST / 8:30am EST
+    - cron: '45 12 * * 1-5'   # Backup +15 min
+    - cron: '0 13 * * 1-5'    # Backup +30 min
+    - cron: '15 13 * * 1-5'   # Backup +45 min
+    - cron: '30 13 * * 1-5'   # Backup +60 min (final attempt before market open)
   workflow_dispatch:
-    # Allows manual trigger from GitHub Actions tab (useful if a run is missed)
+    # Manual trigger from Actions tab (always sends, ignores marker)
 
 permissions:
   contents: write   # needed to commit trade journal back to repo
+
+# Prevent overlapping runs — ensures only one workflow runs at a time
+concurrency:
+  group: daily-report
+  cancel-in-progress: false
 
 jobs:
   send-report:
@@ -29,20 +40,21 @@ jobs:
         run: npm ci
 
       - name: Run daily report & send email
-        run: node scripts/daily-report.js
+        # Manual triggers force-send (override marker); scheduled runs respect marker
+        run: node scripts/daily-report.js ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           FINNHUB_KEY: ${{ secrets.FINNHUB_KEY }}
 
-      - name: Commit updated trade journal
+      - name: Commit updated state (journal + marker)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -f scripts/.trade-journal.json ]; then
-            git add scripts/.trade-journal.json
-            if ! git diff --cached --quiet; then
-              git commit -m "Update trade journal — $(date -u +%Y-%m-%d)"
-              git push
-            fi
+          git add scripts/.trade-journal.json scripts/.last-sent.txt 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Update report state — $(date -u +%Y-%m-%d_%H:%M)"
+            # Pull-rebase before push to avoid race conditions between concurrent runs
+            git pull --rebase origin main || true
+            git push || echo "Push failed — likely a concurrent run won the race; safe to ignore"
           fi

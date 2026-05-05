@@ -23,8 +23,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const DRY_RUN   = process.argv.includes('--dry-run');
+const FORCE     = process.argv.includes('--force');  // bypass dedup marker (manual triggers)
 const RECIPIENT = 'kenlui2003@gmail.com';
 const MEDALS    = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+
+// ── Dedup marker — prevents multiple emails when redundant cron schedules fire ──
+const MARKER_PATH = path.join(__dirname, '.last-sent.txt');
+
+function alreadySentToday() {
+  try {
+    if (!fs.existsSync(MARKER_PATH)) return false;
+    const lastSent = fs.readFileSync(MARKER_PATH, 'utf-8').trim();
+    const today    = new Date().toISOString().slice(0, 10);
+    return lastSent === today;
+  } catch { return false; }
+}
+
+function markSentToday() {
+  fs.writeFileSync(MARKER_PATH, new Date().toISOString().slice(0, 10));
+}
 
 // ── Generic scanner POST ──────────────────────────────────────────────────────
 function scannerPost(bodyObj, endpoint = '/america/scan') {
@@ -1497,6 +1514,14 @@ async function main() {
   const date    = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   const subject = `📊 Pre-Market Report — ${now.toLocaleDateString('en-US', { month:'short', day:'numeric' })} | Top Minervini Setups`;
 
+  // ── Dedup gate ──
+  // If another run already sent today's email, skip silently (saves API calls + noise).
+  // Manual triggers (--force) and dry-runs always bypass this.
+  if (!DRY_RUN && !FORCE && alreadySentToday()) {
+    console.log(`ℹ️  Email already sent today — skipping duplicate run.`);
+    process.exit(0);
+  }
+
   console.log(`\n🔍 Running Minervini Pre-Market Scanner — ${date}\n`);
 
   // Fetch in parallel — allSettled so one failure doesn't kill the whole report
@@ -1617,6 +1642,8 @@ async function main() {
   }
 
   await sendEmail(subject, text, html);
+  markSentToday();
+  console.log(`✅ Marker written — subsequent runs today will skip.`);
 }
 
 main().catch(err => {
