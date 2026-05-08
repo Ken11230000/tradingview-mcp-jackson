@@ -9,12 +9,12 @@
     "rs": 3666,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 1322.39,
-    "maxSincePick": 1406.32,
+    "currentPrice": 1517.29,
+    "maxSincePick": 1517.29,
     "minSincePick": 1255.86,
-    "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-05-07"
+    "status": "T1_HIT",
+    "daysActive": 5,
+    "lastUpdated": "2026-05-08"
   },
   {
     "symbol": "BE",
@@ -60,12 +60,12 @@
     "rs": 856,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 458.29,
-    "maxSincePick": 471.18,
+    "currentPrice": 475.019,
+    "maxSincePick": 475.019,
     "minSincePick": 442.36,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-05-07"
+    "daysActive": 5,
+    "lastUpdated": "2026-05-08"
   },
   {
     "symbol": "STX",
@@ -77,12 +77,12 @@
     "rs": 680,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 754.1901,
-    "maxSincePick": 776.74,
+    "currentPrice": 792.9425,
+    "maxSincePick": 792.9425,
     "minSincePick": 738.54,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-05-07"
+    "daysActive": 5,
+    "lastUpdated": "2026-05-08"
   },
   {
     "symbol": "MU",
@@ -94,11 +94,11 @@
     "rs": 696,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 644.5104,
-    "maxSincePick": 653.4299,
+    "currentPrice": 733.975,
+    "maxSincePick": 733.975,
     "minSincePick": 644.5104,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-05-07"
+    "daysActive": 3,
+    "lastUpdated": "2026-05-08"
   }
 ]
