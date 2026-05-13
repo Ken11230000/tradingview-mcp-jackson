@@ -43,12 +43,12 @@
     "rs": 1414,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 980.2,
+    "currentPrice": 1041.945,
     "maxSincePick": 1069.185,
     "minSincePick": 903.8,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-05-12"
+    "daysActive": 10,
+    "lastUpdated": "2026-05-13"
   },
   {
     "symbol": "WDC",
@@ -60,12 +60,12 @@
     "rs": 856,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 480.47,
+    "currentPrice": 494.565,
     "maxSincePick": 515.69,
     "minSincePick": 442.36,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-05-12"
+    "daysActive": 10,
+    "lastUpdated": "2026-05-13"
   },
   {
     "symbol": "STX",
@@ -77,12 +77,12 @@
     "rs": 680,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 792.27,
+    "currentPrice": 817.945,
     "maxSincePick": 832,
     "minSincePick": 738.54,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-05-12"
+    "daysActive": 10,
+    "lastUpdated": "2026-05-13"
   },
   {
     "symbol": "MU",
@@ -128,12 +128,12 @@
     "rs": 1426,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 279.5,
-    "maxSincePick": 291.9499,
+    "currentPrice": 294.06,
+    "maxSincePick": 294.06,
     "minSincePick": 261.03,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-05-12"
+    "daysActive": 3,
+    "lastUpdated": "2026-05-13"
   },
   {
     "symbol": "LITE",
@@ -145,12 +145,12 @@
     "rs": 1202,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 980.2,
+    "currentPrice": 1041.945,
     "maxSincePick": 1069.185,
     "minSincePick": 903.8,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-05-12"
+    "daysActive": 3,
+    "lastUpdated": "2026-05-13"
   },
   {
     "symbol": "WDC",
@@ -162,11 +162,28 @@
     "rs": 937,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 480.47,
+    "currentPrice": 494.565,
     "maxSincePick": 515.69,
     "minSincePick": 480,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-05-12"
+    "daysActive": 3,
+    "lastUpdated": "2026-05-13"
+  },
+  {
+    "symbol": "MU",
+    "pickDate": "2026-05-13",
+    "entry": 802.45,
+    "stop": 742.27,
+    "target1": 962.94,
+    "target2": 1003.06,
+    "rs": 740,
+    "score": 61,
+    "action": "STRONG",
+    "currentPrice": 802.4499,
+    "maxSincePick": 802.4499,
+    "minSincePick": 802.4499,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-05-13"
   }
 ]
