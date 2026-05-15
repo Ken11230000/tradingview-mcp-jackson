@@ -43,12 +43,12 @@
     "rs": 1414,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 1003.67,
+    "currentPrice": 974.035,
     "maxSincePick": 1069.185,
     "minSincePick": 903.8,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 12,
+    "lastUpdated": "2026-05-15"
   },
   {
     "symbol": "WDC",
@@ -60,12 +60,12 @@
     "rs": 856,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 486.866,
+    "currentPrice": 480.22,
     "maxSincePick": 515.69,
     "minSincePick": 442.36,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 12,
+    "lastUpdated": "2026-05-15"
   },
   {
     "symbol": "STX",
@@ -77,12 +77,12 @@
     "rs": 680,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 802.365,
+    "currentPrice": 796.6,
     "maxSincePick": 832,
     "minSincePick": 738.54,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 12,
+    "lastUpdated": "2026-05-15"
   },
   {
     "symbol": "MU",
@@ -128,12 +128,12 @@
     "rs": 1426,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 306.1,
+    "currentPrice": 284.3,
     "maxSincePick": 306.1,
     "minSincePick": 261.03,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 5,
+    "lastUpdated": "2026-05-15"
   },
   {
     "symbol": "LITE",
@@ -145,12 +145,12 @@
     "rs": 1202,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 1003.67,
+    "currentPrice": 974.035,
     "maxSincePick": 1069.185,
     "minSincePick": 903.8,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 5,
+    "lastUpdated": "2026-05-15"
   },
   {
     "symbol": "WDC",
@@ -162,12 +162,12 @@
     "rs": 937,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 486.866,
+    "currentPrice": 480.22,
     "maxSincePick": 515.69,
     "minSincePick": 480,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 5,
+    "lastUpdated": "2026-05-15"
   },
   {
     "symbol": "MU",
@@ -179,11 +179,11 @@
     "rs": 740,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 788.23,
+    "currentPrice": 742.69,
     "maxSincePick": 802.4499,
-    "minSincePick": 788.23,
+    "minSincePick": 742.69,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-05-14"
+    "daysActive": 3,
+    "lastUpdated": "2026-05-15"
   }
 ]
