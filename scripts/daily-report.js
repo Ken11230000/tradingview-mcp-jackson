@@ -168,15 +168,32 @@ function fetchFXData() {
   return scannerPost({
     symbols: {
       tickers: [
-        // Core 6 USD majors — dropped USDCHF (inverse EURUSD), GBPJPY/EURJPY (carry niche),
-        // and EURGBP (rare divergence trade) for signal-to-noise.
-        'FX:EURUSD','FX:GBPUSD','FX:USDJPY','FX:AUDUSD',
-        'FX:USDCAD','FX:NZDUSD'
+        // 4 essentials + USDCAD (conditional on oil moving >2% that day).
+        // Dropped: USDCHF (inverse EURUSD), NZDUSD (duplicate of AUDUSD),
+        // GBPJPY/EURJPY (carry niche), EURGBP (rare divergence trade).
+        'FX:EURUSD','FX:GBPUSD','FX:USDJPY','FX:AUDUSD','FX:USDCAD'
       ]
     },
     columns: ['name','close','change','SMA20','SMA50','SMA200',
               'ATR','Perf.W','Perf.M','Perf.3M','ADX']  // [10] ADX = trend strength
   }, '/global/scan');
+}
+
+// ── Fetch WTI Crude Oil — used to gate USDCAD in FX section ──────────────────
+// USDCAD is heavily oil-driven. When oil isn't moving, USDCAD signal is noise.
+function fetchOil() {
+  return scannerPost({
+    symbols: { tickers: ['NYMEX:CL1!'] },   // WTI front-month futures
+    columns: ['name','close','change']
+  }, '/global/scan');
+}
+
+function analyzeOil(oilData) {
+  const row = oilData?.data?.[0];
+  if (!row) return null;
+  const [, close, change] = row.d;
+  if (close == null) return null;
+  return { close, change: change ?? 0 };
 }
 
 // ── Fetch DXY (US Dollar Index) — single source of USD truth ─────────────────
@@ -647,32 +664,6 @@ const FOMC_2026 = [
   '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-16'
 ];
 
-// ── Personal positions tracker ────────────────────────────────────────────────
-// Format env var as comma-separated SYM:ENTRY pairs, e.g.
-//   POSITIONS=AUDUSD:0.71054,GBPUSD:1.35135,BTCUSD:79835.81
-// Supports FX majors + BTCUSD/ETHUSD. Used to show real-time P/L vs your stops.
-function parsePositions() {
-  const raw = process.env.POSITIONS;
-  if (!raw) return [];
-  return raw.split(',').map(s => {
-    const [sym, entryStr] = s.trim().split(':');
-    const entry = parseFloat(entryStr);
-    if (!sym || isNaN(entry)) return null;
-    return { sym: sym.trim().toUpperCase(), entry };
-  }).filter(Boolean);
-}
-
-// Lookup the current price + display decimals for a position symbol
-function lookupPositionPrice(sym, fx, crypto) {
-  const fxPair = fx?.pairs?.find(p => p.sym === sym);
-  if (fxPair) {
-    const dp = sym.includes('JPY') ? 3 : 5;
-    return { close: fxPair.close, change: fxPair.change, dp, label: sym };
-  }
-  if (sym === 'BTCUSD' && crypto?.btc) return { close: crypto.btc.close, change: crypto.btc.change, dp: 0, label: '₿ BTC' };
-  if (sym === 'ETHUSD' && crypto?.eth) return { close: crypto.eth.close, change: crypto.eth.change, dp: 0, label: 'Ξ ETH' };
-  return null;
-}
 
 function getFOMCAlert() {
   const now = Date.now();
@@ -1095,28 +1086,11 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
     text += `\n`;
   });
 
-  // ── Your Positions (plain text) ──
-  const positions = parsePositions();
-  const posResolved = positions
-    .map(p => ({ ...p, q: lookupPositionPrice(p.sym, fx, crypto) }))
-    .filter(p => p.q);   // skip symbols we can't price
-
-  if (posResolved.length > 0) {
-    text += `${'─'.repeat(60)}\n\n`;
-    text += `💼 YOUR POSITIONS — live P/L\n\n`;
-    posResolved.forEach(({ sym, entry, q }) => {
-      const pl    = (q.close - entry) / entry * 100;
-      const plStr = (pl >= 0 ? '+' : '') + pl.toFixed(2) + '%';
-      const arrow = pl >= 0 ? '🟢' : '🔴';
-      const cur   = q.close.toFixed(q.dp);
-      const ent   = entry.toFixed(q.dp);
-      const dayChg = q.change != null ? `${q.change >= 0 ? '+' : ''}${q.change.toFixed(2)}% today` : '';
-      text += `   ${arrow} ${q.label.padEnd(8)} entry ${ent.padStart(10)}  →  cur ${cur.padStart(10)}  ${plStr.padStart(8)}${dayChg ? '   (' + dayChg + ')' : ''}\n`;
-    });
-    text += `\n`;
-  }
-
   // ── FX Section (plain text) ──
+  // USDCAD gating: hide unless oil moved >=2% today (otherwise USDCAD is noise)
+  const fxDisplayPairs = fx.pairs.filter(p => p.sym !== 'USDCAD' || fx.showUSDCAD);
+  const fxDisplaySetups = fx.setups.filter(s => s.sym !== 'USDCAD' || fx.showUSDCAD);
+
   text += `${'─'.repeat(60)}\n\n`;
   text += `💱 FX ANALYSIS — Major Pairs\n`;
   text += `${fx.usdBias}\n`;
@@ -1138,10 +1112,17 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   }
   text += `\n`;
 
-  if (fx.setups.length > 0) {
+  // Oil context for USDCAD gating — show oil status so the rule is transparent
+  if (fx.oil) {
+    const oilArrow = fx.oil.change >= 0 ? '↑' : '↓';
+    const oilFlag  = fx.showUSDCAD ? '🔥 USDCAD active' : '😴 USDCAD hidden (oil quiet)';
+    text += `🛢  Oil $${fx.oil.close.toFixed(2)} ${oilArrow}${Math.abs(fx.oil.change).toFixed(2)}%  ·  ${oilFlag}\n\n`;
+  }
+
+  if (fxDisplaySetups.length > 0) {
     text += `Top setups (ADX≥20 trending + USD-aligned):\n\n`;
     const fxMedals = ['🥇','🥈','🥉'];
-    fx.setups.forEach(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct, adxLabel }, i) => {
+    fxDisplaySetups.forEach(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct, adxLabel }, i) => {
       const dir = bias === 'LONG' ? '📈 LONG' : '📉 SHORT';
       text += `${fxMedals[i]} ${sym}  ${dir}  |  ${trend}  |  ADX ${adxLabel}\n`;
       text += `   Price:    ${entry}  (${change != null ? (change >= 0 ? '+' : '') + change.toFixed(2) + '%' : 'n/a'})  |  Wk: ${fmtPct(perfW)}\n`;
@@ -1155,7 +1136,7 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
 
   // All pairs summary
   text += `Pair Summary:\n`;
-  fx.pairs.forEach(({ sym, entry: priceStr, trend, bias, change, adxLabel }) => {
+  fxDisplayPairs.forEach(({ sym, entry: priceStr, trend, bias, change, adxLabel }) => {
     const USD_QUOTE = new Set(['EURUSD','GBPUSD','AUDUSD','NZDUSD']);
     const USD_BASE  = new Set(['USDJPY','USDCAD','USDCHF']);
     const contradicts = (fx.usdWeak   && USD_BASE.has(sym)  && bias === 'LONG')  ||
@@ -1454,36 +1435,6 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
         ${htmlSuppressPicks ? suppressedCardsHtml : stockCards}
       </div>
 
-      ${posResolved.length > 0 ? `
-      <!-- Your Positions -->
-      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;margin-bottom:16px;">
-        <h2 style="margin:0 0 12px;font-size:16px;">💼 Your Positions — Live P/L</h2>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          ${posResolved.map(({ sym, entry, q }) => {
-            const pl    = (q.close - entry) / entry * 100;
-            const plStr = (pl >= 0 ? '+' : '') + pl.toFixed(2) + '%';
-            const plColor = pl >= 0 ? '#69f0ae' : '#ff5252';
-            const bg      = pl >= 0 ? '#0a2a18' : '#2a0a0a';
-            const cur     = q.close.toFixed(q.dp);
-            const ent     = entry.toFixed(q.dp);
-            const dayChg  = q.change != null
-              ? `<span style="color:${q.change >= 0 ? '#69f0ae' : '#ff5252'};font-size:12px;">${q.change >= 0 ? '+' : ''}${q.change.toFixed(2)}% today</span>`
-              : '';
-            return `
-            <div style="background:${bg};border-left:4px solid ${plColor};border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;">
-              <div>
-                <strong style="color:#fff;font-size:14px;">${q.label}</strong>
-                <span style="color:#8b949e;margin-left:8px;">entry <strong style="color:#e6edf3;">${ent}</strong> → cur <strong style="color:#fff;">${cur}</strong></span>
-              </div>
-              <div>
-                <strong style="color:${plColor};font-size:15px;">${plStr}</strong>
-                ${dayChg ? '<span style="margin-left:10px;">' + dayChg + '</span>' : ''}
-              </div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>` : ''}
-
       <!-- FX Analysis -->
       <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;margin-bottom:16px;">
         <h2 style="margin:0 0 6px;font-size:16px;">💱 FX Analysis — Major Pairs</h2>
@@ -1509,9 +1460,16 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
           ${fx.econAlerts.map(a => `<p style="margin:2px 0;color:#e6edf3;font-size:12px;">⚡ <strong>${a.event}</strong> ${a.label} (${a.date}) — <span style="color:#ffab00;">${a.affects}</span> pairs volatile</p>`).join('')}
         </div>` : ''}
 
-        ${fx.setups.length > 0 ? `
+        ${fx.oil ? `
+        <p style="margin:0 0 12px;color:#8b949e;font-size:12px;">
+          🛢 <strong style="color:#fff;">Oil $${fx.oil.close.toFixed(2)}</strong>
+          <span style="color:${fx.oil.change >= 0 ? '#00c853' : '#ff5252'};">${fx.oil.change >= 0 ? '+' : ''}${fx.oil.change.toFixed(2)}%</span>
+          · ${fx.showUSDCAD ? '<span style="color:#ffab00;">🔥 USDCAD active (oil ≥2%)</span>' : '<span style="color:#6e7681;">😴 USDCAD hidden (oil quiet)</span>'}
+        </p>` : ''}
+
+        ${fxDisplaySetups.length > 0 ? `
         <p style="margin:0 0 10px;color:#e6edf3;font-size:13px;font-weight:bold;">Top Setups — ADX≥20 Trending + USD-Aligned:</p>
-        ${fx.setups.map(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct, adxLabel }, i) => {
+        ${fxDisplaySetups.map(({ sym, close, change, trend, bias, entry, stop, t1, t2, perfW, perfM, fmtPct, adxLabel }, i) => {
           const dir      = bias === 'LONG' ? '📈 LONG' : '📉 SHORT';
           const dirColor = bias === 'LONG' ? '#00c853' : '#ff5252';
           const chgColor = change >= 0 ? '#00c853' : '#ff1744';
@@ -1563,7 +1521,7 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
             <th style="padding:6px 4px;text-align:center;">Bias</th>
           </tr></thead>
           <tbody>
-          ${fx.pairs.map(({ sym, entry: priceStr, change, perfW, fmtPct, trend, bias, adxLabel }) => {
+          ${fxDisplayPairs.map(({ sym, entry: priceStr, change, perfW, fmtPct, trend, bias, adxLabel }) => {
             const biasColor = bias === 'LONG' ? '#00c853' : bias === 'SHORT' ? '#ff5252' : '#8b949e';
             const biasIcon  = bias === 'LONG' ? '🟢 LONG' : bias === 'SHORT' ? '🔴 SHORT' : '🟡 FLAT';
             const chgColor  = change >= 0 ? '#00c853' : '#ff1744';
@@ -1681,8 +1639,8 @@ async function main() {
   console.log(`\n🔍 Running Minervini Pre-Market Scanner — ${date}\n`);
 
   // Fetch in parallel — allSettled so one failure doesn't kill the whole report
-  const [rawResult, regimeResult, fxResult, dxyResult, cryptoResult] = await Promise.allSettled([
-    fetchStocks(), fetchMarketRegime(), fetchFXData(), fetchDXY(), fetchCrypto()
+  const [rawResult, regimeResult, fxResult, dxyResult, cryptoResult, oilResult] = await Promise.allSettled([
+    fetchStocks(), fetchMarketRegime(), fetchFXData(), fetchDXY(), fetchCrypto(), fetchOil()
   ]);
 
   if (rawResult.status === 'rejected') {
@@ -1694,14 +1652,19 @@ async function main() {
   const fxRaw     = fxResult.status    === 'fulfilled' ? fxResult.value    : { data: [] };
   const dxyRaw    = dxyResult.status   === 'fulfilled' ? dxyResult.value   : null;
   const cryptoRaw = cryptoResult.status === 'fulfilled' ? cryptoResult.value : null;
+  const oilRaw    = oilResult.status   === 'fulfilled' ? oilResult.value   : null;
   if (regimeResult.status === 'rejected') console.warn('⚠️  Regime fetch failed:', regimeResult.reason.message);
   if (fxResult.status    === 'rejected') console.warn('⚠️  FX fetch failed:',     fxResult.reason.message);
   if (dxyResult.status   === 'rejected') console.warn('⚠️  DXY fetch failed:',    dxyResult.reason.message);
   if (cryptoResult.status=== 'rejected') console.warn('⚠️  Crypto fetch failed:', cryptoResult.reason.message);
+  if (oilResult.status   === 'rejected') console.warn('⚠️  Oil fetch failed:',    oilResult.reason.message);
 
   const regime = evaluateRegime(regimeRaw);
   const fx     = analyzeFX(fxRaw);
   fx.dxy        = analyzeDXY(dxyRaw);
+  fx.oil        = analyzeOil(oilRaw);
+  // USDCAD gating: only show USDCAD when oil moved >2% (otherwise it's noise)
+  fx.showUSDCAD = fx.oil != null && Math.abs(fx.oil.change ?? 0) >= 2;
   fx.econAlerts = getEconAlerts();
   const crypto = analyzeCrypto(cryptoRaw);
   console.log(`🌍 Market Regime: ${regime.status} (SPY ${regime.spy?.above ? '✅ above' : '🔴 below'} 200SMA | QQQ ${regime.qqq?.above ? '✅ above' : '🔴 below'} 200SMA)`);
