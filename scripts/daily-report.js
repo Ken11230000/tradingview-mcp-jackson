@@ -168,9 +168,10 @@ function fetchFXData() {
   return scannerPost({
     symbols: {
       tickers: [
+        // Core 6 USD majors — dropped USDCHF (inverse EURUSD), GBPJPY/EURJPY (carry niche),
+        // and EURGBP (rare divergence trade) for signal-to-noise.
         'FX:EURUSD','FX:GBPUSD','FX:USDJPY','FX:AUDUSD',
-        'FX:USDCAD','FX:USDCHF','FX:NZDUSD',
-        'FX:GBPJPY','FX:EURJPY','FX:EURGBP'
+        'FX:USDCAD','FX:NZDUSD'
       ]
     },
     columns: ['name','close','change','SMA20','SMA50','SMA200',
@@ -646,6 +647,33 @@ const FOMC_2026 = [
   '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-16'
 ];
 
+// ── Personal positions tracker ────────────────────────────────────────────────
+// Format env var as comma-separated SYM:ENTRY pairs, e.g.
+//   POSITIONS=AUDUSD:0.71054,GBPUSD:1.35135,BTCUSD:79835.81
+// Supports FX majors + BTCUSD/ETHUSD. Used to show real-time P/L vs your stops.
+function parsePositions() {
+  const raw = process.env.POSITIONS;
+  if (!raw) return [];
+  return raw.split(',').map(s => {
+    const [sym, entryStr] = s.trim().split(':');
+    const entry = parseFloat(entryStr);
+    if (!sym || isNaN(entry)) return null;
+    return { sym: sym.trim().toUpperCase(), entry };
+  }).filter(Boolean);
+}
+
+// Lookup the current price + display decimals for a position symbol
+function lookupPositionPrice(sym, fx, crypto) {
+  const fxPair = fx?.pairs?.find(p => p.sym === sym);
+  if (fxPair) {
+    const dp = sym.includes('JPY') ? 3 : 5;
+    return { close: fxPair.close, change: fxPair.change, dp, label: sym };
+  }
+  if (sym === 'BTCUSD' && crypto?.btc) return { close: crypto.btc.close, change: crypto.btc.change, dp: 0, label: '₿ BTC' };
+  if (sym === 'ETHUSD' && crypto?.eth) return { close: crypto.eth.close, change: crypto.eth.change, dp: 0, label: 'Ξ ETH' };
+  return null;
+}
+
 function getFOMCAlert() {
   const now = Date.now();
   for (const ds of FOMC_2026) {
@@ -1067,6 +1095,27 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
     text += `\n`;
   });
 
+  // ── Your Positions (plain text) ──
+  const positions = parsePositions();
+  const posResolved = positions
+    .map(p => ({ ...p, q: lookupPositionPrice(p.sym, fx, crypto) }))
+    .filter(p => p.q);   // skip symbols we can't price
+
+  if (posResolved.length > 0) {
+    text += `${'─'.repeat(60)}\n\n`;
+    text += `💼 YOUR POSITIONS — live P/L\n\n`;
+    posResolved.forEach(({ sym, entry, q }) => {
+      const pl    = (q.close - entry) / entry * 100;
+      const plStr = (pl >= 0 ? '+' : '') + pl.toFixed(2) + '%';
+      const arrow = pl >= 0 ? '🟢' : '🔴';
+      const cur   = q.close.toFixed(q.dp);
+      const ent   = entry.toFixed(q.dp);
+      const dayChg = q.change != null ? `${q.change >= 0 ? '+' : ''}${q.change.toFixed(2)}% today` : '';
+      text += `   ${arrow} ${q.label.padEnd(8)} entry ${ent.padStart(10)}  →  cur ${cur.padStart(10)}  ${plStr.padStart(8)}${dayChg ? '   (' + dayChg + ')' : ''}\n`;
+    });
+    text += `\n`;
+  }
+
   // ── FX Section (plain text) ──
   text += `${'─'.repeat(60)}\n\n`;
   text += `💱 FX ANALYSIS — Major Pairs\n`;
@@ -1404,6 +1453,36 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
       <div style="margin-bottom:16px;">
         ${htmlSuppressPicks ? suppressedCardsHtml : stockCards}
       </div>
+
+      ${posResolved.length > 0 ? `
+      <!-- Your Positions -->
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;margin-bottom:16px;">
+        <h2 style="margin:0 0 12px;font-size:16px;">💼 Your Positions — Live P/L</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${posResolved.map(({ sym, entry, q }) => {
+            const pl    = (q.close - entry) / entry * 100;
+            const plStr = (pl >= 0 ? '+' : '') + pl.toFixed(2) + '%';
+            const plColor = pl >= 0 ? '#69f0ae' : '#ff5252';
+            const bg      = pl >= 0 ? '#0a2a18' : '#2a0a0a';
+            const cur     = q.close.toFixed(q.dp);
+            const ent     = entry.toFixed(q.dp);
+            const dayChg  = q.change != null
+              ? `<span style="color:${q.change >= 0 ? '#69f0ae' : '#ff5252'};font-size:12px;">${q.change >= 0 ? '+' : ''}${q.change.toFixed(2)}% today</span>`
+              : '';
+            return `
+            <div style="background:${bg};border-left:4px solid ${plColor};border-radius:6px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;">
+              <div>
+                <strong style="color:#fff;font-size:14px;">${q.label}</strong>
+                <span style="color:#8b949e;margin-left:8px;">entry <strong style="color:#e6edf3;">${ent}</strong> → cur <strong style="color:#fff;">${cur}</strong></span>
+              </div>
+              <div>
+                <strong style="color:${plColor};font-size:15px;">${plStr}</strong>
+                ${dayChg ? '<span style="margin-left:10px;">' + dayChg + '</span>' : ''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
 
       <!-- FX Analysis -->
       <div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;margin-bottom:16px;">

@@ -46,6 +46,7 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           FINNHUB_KEY: ${{ secrets.FINNHUB_KEY }}
+          POSITIONS: ${{ secrets.POSITIONS }}
 
       - name: Commit updated state (journal + marker)
         run: |
