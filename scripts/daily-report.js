@@ -155,11 +155,11 @@ function fetchStocks() {
   });
 }
 
-// ── Fetch market regime: SPY + QQQ vs their 200 SMAs ─────────────────────────
+// ── Fetch market regime: SPY + QQQ vs their 50 + 200 SMAs ────────────────────
 function fetchMarketRegime() {
   return scannerPost({
     symbols: { tickers: ['AMEX:SPY', 'NASDAQ:QQQ'] },
-    columns: ['name', 'close', 'SMA200', 'Perf.Y', 'change']
+    columns: ['name', 'close', 'SMA200', 'Perf.Y', 'change', 'SMA50']
   });
 }
 
@@ -446,22 +446,42 @@ function evaluateRegime(regimeData) {
   let spy = null, qqq = null;
 
   for (const r of rows) {
-    const [name, close, sma200, perfY, change] = r.d;
-    const obj = { name, close, sma200, perfY, change, above: close > sma200 };
+    const [name, close, sma200, perfY, change, sma50] = r.d;
+    const obj = {
+      name, close, sma200, sma50, perfY, change,
+      above:   close > sma200,           // legacy field (above SMA200)
+      above50: sma50 ? close > sma50 : null
+    };
     if (r.s.includes('SPY')) spy = obj;
     if (r.s.includes('QQQ')) qqq = obj;
   }
 
-  if (!spy || !qqq) return { status: 'UNKNOWN', spy, qqq, spyPerfY: 0 };
+  if (!spy || !qqq) return { status: 'UNKNOWN', spy, qqq, spyPerfY: 0, tradeable: false };
 
-  const bothAbove = spy.above && qqq.above;
-  const oneAbove  = spy.above || qqq.above;
+  const bothAbove200 = spy.above && qqq.above;
+  const oneAbove200  = spy.above || qqq.above;
+
+  // ── Regime filter (Minervini): SPY must be above SMA50 to take fresh picks ──
+  // Below SMA50 = institutional distribution, breakouts fail. STAND ASIDE.
+  const tradeable = spy.above50 === true && qqq.above50 === true;
+
+  // Status priority:
+  //   BULL    — both above SMA200 AND both above SMA50 (best conditions)
+  //   CAUTION — mixed (one above 200, one below; or one below SMA50)
+  //   CASH    — both above SMA200 but BOTH below SMA50 (transition / topping)
+  //   BEAR    — both below SMA200 (worst conditions)
+  let status;
+  if (!spy.above && !qqq.above)                  status = 'BEAR';
+  else if (spy.above50 === false && qqq.above50 === false) status = 'CASH';
+  else if (bothAbove200 && tradeable)            status = 'BULL';
+  else                                           status = 'CAUTION';
 
   return {
-    status:   bothAbove ? 'BULL' : oneAbove ? 'CAUTION' : 'BEAR',
+    status,
     spy,
     qqq,
-    spyPerfY: spy.perfY || 0   // used for RS calculation
+    spyPerfY:  spy.perfY || 0,   // used for RS calculation
+    tradeable                    // true only when fresh picks are safe to take
   };
 }
 
@@ -713,13 +733,20 @@ function getEconAlerts() {
 // ── Regime banner (plain text) ────────────────────────────────────────────────
 function regimeBannerText(regime) {
   const { status, spy, qqq } = regime;
-  const spyStr = spy ? `SPY $${spy.close?.toFixed(2)} vs 200SMA $${spy.sma200?.toFixed(2)} (${spy.above ? '✅ ABOVE' : '🔴 BELOW'})` : '';
-  const qqqStr = qqq ? `QQQ $${qqq.close?.toFixed(2)} vs 200SMA $${qqq.sma200?.toFixed(2)} (${qqq.above ? '✅ ABOVE' : '🔴 BELOW'})` : '';
+  const mark = (sma, above) =>
+    sma != null ? `$${sma >= 100 ? sma.toFixed(0) : sma.toFixed(2)} ${above ? '✅' : '🔴'}` : '';
+  const spyStr = spy
+    ? `SPY $${spy.close?.toFixed(2)}  ·  50SMA ${mark(spy.sma50, spy.above50)}  ·  200SMA ${mark(spy.sma200, spy.above)}`
+    : '';
+  const qqqStr = qqq
+    ? `QQQ $${qqq.close?.toFixed(2)}  ·  50SMA ${mark(qqq.sma50, qqq.above50)}  ·  200SMA ${mark(qqq.sma200, qqq.above)}`
+    : '';
 
   const lines = {
-    BULL:    `🟢 BULL MARKET — Both indexes above 200 SMA. Full conviction on setups.\n   ${spyStr}\n   ${qqqStr}`,
-    CAUTION: `🟡 CAUTION — Mixed signals. Reduce position size 50%. Wait for clarity.\n   ${spyStr}\n   ${qqqStr}`,
-    BEAR:    `🔴 BEAR MARKET — Both indexes below 200 SMA. HIGH RISK.\n   Consider standing aside. If trading, cut size to 25%.\n   ${spyStr}\n   ${qqqStr}`,
+    BULL:    `🟢 BULL MARKET — Indexes above both 50 + 200 SMA. Full conviction on setups.\n   ${spyStr}\n   ${qqqStr}`,
+    CAUTION: `🟡 CAUTION — Mixed signals (one index below SMA50 or SMA200). Reduce size 50%, fewer entries.\n   ${spyStr}\n   ${qqqStr}`,
+    CASH:    `🟠 REGIME OFF — Both indexes BELOW 50 SMA (still above 200 SMA).\n   ⚠️  Minervini rule: NO fresh breakout buys until SPY reclaims its 50 SMA.\n   Hold cash. Manage existing positions with hard stops only.\n   ${spyStr}\n   ${qqqStr}`,
+    BEAR:    `🔴 BEAR MARKET — Both indexes below 200 SMA. HIGH RISK.\n   ⚠️  STAND ASIDE — do not take fresh long picks. Existing longs: tighten stops or exit.\n   ${spyStr}\n   ${qqqStr}`,
     UNKNOWN: `⚪ REGIME UNKNOWN — Could not fetch SPY/QQQ data.`
   };
   return lines[status] || lines.UNKNOWN;
@@ -942,6 +969,10 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   }
   if (fomcAlert) text += `   🚨 ${fomcAlert}\n`;
   if (regime.status === 'BEAR') text += `   🔴 BEAR MARKET — Minervini holds 100% cash\n`;
+  if (regime.status === 'CASH') text += `   🟠 REGIME OFF — SPY below 50 SMA. NO fresh picks today.\n`;
+  if (regime.tradeable === false && regime.status !== 'BEAR' && regime.status !== 'CASH') {
+    text += `   ⚠️  Regime filter: fresh picks SUPPRESSED (index below SMA50)\n`;
+  }
   text += `\n${'─'.repeat(60)}\n\n`;
 
   text += `🌍 MARKET REGIME\n${regimeBannerText(regime)}\n\n`;
@@ -984,9 +1015,28 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   }
 
   text += `${'─'.repeat(60)}\n\n`;
-  text += `📈 ${marketCount} stocks passed Minervini Trend Template — Top 5 by RS vs SPY:\n\n`;
 
-  scoredTop.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, epsYoY, revYoY }, i) => {
+  // ── REGIME FILTER: suppress fresh picks when SPY/QQQ below SMA50 ──
+  // Minervini rule: don't fight the broader market. Most May 12 picks failed
+  // because SPY was rolling over. Standing aside in CASH/BEAR avoids that.
+  const suppressPicks = regime.tradeable === false &&
+                        (regime.status === 'CASH' || regime.status === 'BEAR');
+
+  if (suppressPicks) {
+    const banner = regime.status === 'BEAR' ? '🔴 BEAR MARKET' : '🟠 REGIME OFF';
+    text += `🚫 FRESH PICKS SUPPRESSED — ${banner}\n\n`;
+    text += `   ${marketCount} stocks technically passed the Trend Template, BUT the broader\n`;
+    text += `   market is in a downtrend (${regime.status === 'BEAR' ? 'SPY < 200 SMA' : 'SPY < 50 SMA'}).\n`;
+    text += `   In Minervini's research, breakouts fail ~70% of the time when the index\n`;
+    text += `   is below its 50 SMA. Statistically you cannot win this game today.\n\n`;
+    text += `   ✅ DO: Manage existing positions. Honor stops. Build watchlist.\n`;
+    text += `   ❌ DON'T: Take new long positions. Add to losers. Average down.\n`;
+    text += `   📅 RE-ENGAGE when SPY closes back above its 50 SMA on volume.\n\n`;
+  } else {
+    text += `📈 ${marketCount} stocks passed Minervini Trend Template — Top 5 by RS vs SPY:\n\n`;
+  }
+
+  if (!suppressPicks) scoredTop.forEach(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, epsYoY, revYoY }, i) => {
     const [name, close, chg, , , high52, , mktCap, , desc] = r.d;
     const { entry, stop, target1, target2, rr } = calcLevels(close);
     const fromHigh = ((close / high52 - 1) * 100).toFixed(1);
@@ -1623,7 +1673,15 @@ async function main() {
   updateJournalOutcomes(journal, raw);
   // Score today's top 5 first so we have action labels for the journal
   const scoredForJournal = stocks.slice(0, 5).map(s => ({ ...s, ...scoreSetup(s) }));
-  appendNewPicks(journal, scoredForJournal, today);
+  // Regime filter: only add picks to the journal if the broader market is tradeable.
+  // Otherwise we'd be recording statistically-doomed trades and dragging the win rate down.
+  const regimeOff = regime.tradeable === false &&
+                    (regime.status === 'CASH' || regime.status === 'BEAR');
+  if (regimeOff) {
+    console.log(`🚫 Regime OFF (${regime.status}) — skipping journal append for today's picks.`);
+  } else {
+    appendNewPicks(journal, scoredForJournal, today);
+  }
   saveJournal(journal);
   const journalSummary = journalStats(journal);
   console.log(`📒 Trade Journal: ${journalSummary.total} picks tracked (last 30d)  |  ${journalSummary.wins} wins · ${journalSummary.losses} losses · ${journalSummary.ACTIVE} active${journalSummary.winRate != null ? `  |  Win rate ${journalSummary.winRate}%` : ''}\n`);
