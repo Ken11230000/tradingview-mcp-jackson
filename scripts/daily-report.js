@@ -957,6 +957,92 @@ function journalStats(journal) {
   return { total: recent.length, ...counts, wins, losses, closed, winRate, recent };
 }
 
+// ── "Action of the Day" picker ────────────────────────────────────────────────
+// Picks the single highest-conviction action across stocks / crypto / FX.
+// Returns { asset, headline, sub, why, color }. Renders as the hero card at the
+// top of the email so the user sees one clear recommendation in 5 seconds.
+function buildStockWhy(pick) {
+  const reasons = [];
+  if (pick.proximityTier === 'elite')                  reasons.push('at 52w high');
+  if (pick.atrPct != null && pick.atrPct < 5)          reasons.push('tight base');
+  if (pick.volDryUp)                                   reasons.push('vol dry-up');
+  if (pick.relVol != null && pick.relVol >= 1.4)       reasons.push('vol confirming');
+  if (pick.rs != null && pick.rs >= 100)               reasons.push('elite RS');
+  if (pick.epsYoY != null && pick.epsYoY >= 25)        reasons.push(`EPS +${pick.epsYoY.toFixed(0)}%`);
+  if (pick.revYoY != null && pick.revYoY >= 25)        reasons.push(`Rev +${pick.revYoY.toFixed(0)}%`);
+  return reasons.length > 0 ? reasons.slice(0, 3).join(' · ') : 'High-quality breakout candidate';
+}
+
+function pickActionOfTheDay(scoredTop, crypto, fx, regime) {
+  // 1. Regime gate — if off, the only correct action is cash
+  const regimeOff = regime.tradeable === false &&
+                    (regime.status === 'CASH' || regime.status === 'BEAR');
+  if (regimeOff) {
+    return {
+      asset:    'CASH',
+      headline: 'HOLD CASH — Do not enter any new positions today',
+      sub:      regime.status === 'BEAR'
+                  ? 'Both SPY & QQQ below 200 SMA — bear regime'
+                  : 'SPY below its 50 SMA — regime filter active',
+      why:      'Breakouts statistically fail in this regime. Wait for SPY to reclaim its 50 SMA on volume.',
+      color:    regime.status === 'BEAR' ? '#ff1744' : '#ff8800'
+    };
+  }
+
+  // 2. Top stock if score ≥ 50 (preferred — has clean entry/stop/T1/T2)
+  const topStock = scoredTop[0];
+  if (topStock && topStock.score >= 50) {
+    const [name, close] = topStock.r.d;
+    const { entry, stop, target1, target2, rr } = calcLevels(close);
+    return {
+      asset:    'STOCK',
+      ticker:   name,
+      headline: `Buy ${name} @ $${entry.toFixed(2)} — Score ${topStock.score}/100 · ${topStock.action}`,
+      sub:      `🛑 Stop $${stop} (−7.5%)  ·  🎯 T1 $${target1} (+20%)  ·  🎯 T2 $${target2} (+25%)  ·  ${rr}:1 R:R`,
+      why:      buildStockWhy(topStock),
+      color:    '#00c853'
+    };
+  }
+
+  // 3. Top crypto if score ≥ 70 (higher bar — secondary asset class)
+  const cryptos = [crypto?.btc, crypto?.eth]
+    .filter(c => c && c.score >= 70 && c.bias && c.bias !== 'NEUTRAL');
+  if (cryptos.length > 0) {
+    const c   = cryptos.sort((a, b) => b.score - a.score)[0];
+    const sym = c === crypto.btc ? 'BTC' : 'ETH';
+    return {
+      asset:    'CRYPTO',
+      ticker:   sym,
+      headline: `${c.bias === 'LONG' ? 'Buy' : 'Short'} ${sym} @ $${Math.round(c.entry)} — Score ${c.score}/100`,
+      sub:      `🛑 Stop $${Math.round(c.stop)}  ·  🎯 T1 $${Math.round(c.t1)} (2:1)  ·  🎯 T2 $${Math.round(c.t2)} (3:1)`,
+      why:      `${c.trend} trend · ADX ${(c.adxLabel || '').replace(/[^\d]/g, '') || '?'}`,
+      color:    '#00c853'
+    };
+  }
+
+  // 4. Top FX setup if ADX ≥ 25 (trending only — no choppy noise)
+  const fxSetup = fx?.setups?.find(s => s.adx != null && s.adx >= 25);
+  if (fxSetup) {
+    return {
+      asset:    'FX',
+      ticker:   fxSetup.sym,
+      headline: `${fxSetup.bias === 'LONG' ? 'Buy' : 'Short'} ${fxSetup.sym} @ ${fxSetup.entry} — ${fxSetup.trend}`,
+      sub:      `🛑 Stop ${fxSetup.stop} (1.5×ATR)  ·  🎯 T1 ${fxSetup.t1} (2:1)  ·  🎯 T2 ${fxSetup.t2} (3:1)`,
+      why:      `Trending pair aligned with USD direction · ADX ${fxSetup.adx.toFixed(0)}`,
+      color:    '#00c853'
+    };
+  }
+
+  // 5. Nothing high-conviction
+  return {
+    asset:    'NONE',
+    headline: 'NO HIGH-CONVICTION ACTION TODAY',
+    sub:      'No setup scored ≥50/100 across stocks, crypto, or FX.',
+    why:      'Patience > forcing trades. Best move: watch & wait for a cleaner setup.',
+    color:    '#8b949e'
+  };
+}
+
 // ── Format report (plain text + HTML) ────────────────────────────────────────
 function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   const top = stocks.slice(0, 5);
@@ -975,9 +1061,20 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   });
   const bestPick = [...scoredTop].sort((a, b) => b.score - a.score)[0];
 
+  // ── Action of the Day (hero card) ──
+  const action = pickActionOfTheDay(scoredTop, crypto, fx, regime);
+
   // ── Plain text ──
   let text = `📊 PRE-MARKET REPORT — ${date}\n`;
   text += `${'─'.repeat(60)}\n\n`;
+
+  // Hero: single recommendation, top of the page, 5-second decision
+  text += `🎯 ACTION OF THE DAY\n`;
+  text += `${'━'.repeat(60)}\n`;
+  text += `   ${action.headline}\n`;
+  if (action.sub) text += `   ${action.sub}\n`;
+  text += `\n   💡 Why: ${action.why}\n`;
+  text += `${'━'.repeat(60)}\n\n`;
 
   // ── TL;DR Summary ──
   text += `⚡ TODAY AT A GLANCE\n`;
@@ -1325,6 +1422,20 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
         <p style="margin:8px 0 0;color:#58a6ff;font-size:14px;">
           📈 <strong>${marketCount}</strong> stocks passed Minervini Trend Template · Top 5 ranked by RS vs SPY
         </p>
+      </div>
+
+      <!-- 🎯 ACTION OF THE DAY (hero card — single recommendation for 5-second decision) -->
+      <div style="background:linear-gradient(135deg,#161b22 0%,#0d1117 100%);border:2px solid ${action.color};border-radius:14px;padding:22px;margin-bottom:16px;box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:22px;">🎯</span>
+          <span style="font-size:13px;font-weight:bold;letter-spacing:1.5px;color:${action.color};text-transform:uppercase;">Action of the Day</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:18px;font-weight:bold;color:#fff;line-height:1.4;">${action.headline}</p>
+        ${action.sub ? `<p style="margin:0 0 14px;font-size:13px;color:#e6edf3;line-height:1.5;">${action.sub}</p>` : ''}
+        <div style="background:#0d1117;border-left:3px solid ${action.color};border-radius:6px;padding:10px 14px;font-size:13px;color:#8b949e;">
+          <span style="color:${action.color};font-weight:bold;">💡 Why:</span>
+          <span style="color:#e6edf3;margin-left:6px;">${action.why}</span>
+        </div>
       </div>
 
       <!-- Market Regime -->
