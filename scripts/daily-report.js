@@ -1150,17 +1150,44 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
   text += `📚 Strategy: Mark Minervini SEPA — Trend Template + VCP Breakout\n`;
 
   // ── HTML ──
-  const regimeColor = { BULL: '#00c853', CAUTION: '#ffab00', BEAR: '#ff1744', UNKNOWN: '#8b949e' }[status];
-  const regimeIcon  = { BULL: '🟢', CAUTION: '🟡', BEAR: '🔴', UNKNOWN: '⚪' }[status];
+  const regimeColor = { BULL: '#00c853', CAUTION: '#ffab00', CASH: '#ff8800', BEAR: '#ff1744', UNKNOWN: '#8b949e' }[status];
+  const regimeIcon  = { BULL: '🟢', CAUTION: '🟡', CASH: '🟠', BEAR: '🔴', UNKNOWN: '⚪' }[status];
   const regimeMsg   = {
-    BULL:    'Both SPY & QQQ above 200 SMA — Full conviction on setups',
-    CAUTION: 'Mixed signals — Reduce position size 50%',
+    BULL:    'Indexes above both 50 + 200 SMA — Full conviction on setups',
+    CAUTION: 'Mixed signals (one index below SMA50 or SMA200) — Reduce size 50%',
+    CASH:    'Both indexes BELOW 50 SMA — NO fresh picks. Minervini rule: stand aside.',
     BEAR:    'Both below 200 SMA — HIGH RISK. Consider standing aside.',
     UNKNOWN: 'Could not fetch market data'
   }[status];
 
-  const spyRow = regime.spy ? `SPY $${regime.spy.close?.toFixed(2)} | 200SMA $${regime.spy.sma200?.toFixed(2)} | ${regime.spy.above ? '✅ Above' : '🔴 Below'}` : '';
-  const qqqRow = regime.qqq ? `QQQ $${regime.qqq.close?.toFixed(2)} | 200SMA $${regime.qqq.sma200?.toFixed(2)} | ${regime.qqq.above ? '✅ Above' : '🔴 Below'}` : '';
+  // Per-index status — show BOTH 50SMA and 200SMA so the regime shift is visible early
+  const smaBadge = (sma, above) => sma != null
+    ? `<span style="color:${above ? '#69f0ae' : '#ff5252'};">$${sma >= 100 ? sma.toFixed(0) : sma.toFixed(2)} ${above ? '✅' : '🔴'}</span>`
+    : '<span style="color:#6e7681;">n/a</span>';
+  const spyRow = regime.spy
+    ? `<strong style="color:#fff;">SPY $${regime.spy.close?.toFixed(2)}</strong> · 50SMA ${smaBadge(regime.spy.sma50, regime.spy.above50)} · 200SMA ${smaBadge(regime.spy.sma200, regime.spy.above)}`
+    : '';
+  const qqqRow = regime.qqq
+    ? `<strong style="color:#fff;">QQQ $${regime.qqq.close?.toFixed(2)}</strong> · 50SMA ${smaBadge(regime.qqq.sma50, regime.qqq.above50)} · 200SMA ${smaBadge(regime.qqq.sma200, regime.qqq.above)}`
+    : '';
+
+  // ── Regime suppression: when CASH/BEAR, replace stock cards with a stand-aside notice ──
+  const htmlSuppressPicks = regime.tradeable === false &&
+                            (regime.status === 'CASH' || regime.status === 'BEAR');
+  const suppressedCardsHtml = `
+    <div style="background:#3d2000;border:2px solid ${regimeColor};border-radius:12px;padding:24px;margin-bottom:16px;text-align:left;">
+      <h2 style="margin:0 0 10px;color:${regimeColor};font-size:18px;">🚫 FRESH PICKS SUPPRESSED — ${regimeIcon} ${status === 'BEAR' ? 'BEAR MARKET' : 'REGIME OFF'}</h2>
+      <p style="margin:0 0 10px;color:#e6edf3;font-size:14px;">
+        <strong>${marketCount}</strong> stocks technically passed the Trend Template, but the broader market is in a downtrend
+        (${status === 'BEAR' ? 'SPY < 200 SMA' : 'SPY < 50 SMA'}). In Minervini's research, breakouts fail ~70% of the time
+        when the index is below its 50 SMA. Statistically you cannot win this game today.
+      </p>
+      <div style="background:#0d1117;border-radius:8px;padding:12px;margin-top:12px;font-size:13px;line-height:1.7;">
+        <div><span style="color:#69f0ae;">✅ DO:</span> Manage existing positions. Honor stops. Build watchlist.</div>
+        <div><span style="color:#ff5252;">❌ DON'T:</span> Take new long positions. Add to losers. Average down.</div>
+        <div><span style="color:#58a6ff;">📅 RE-ENGAGE:</span> When SPY closes back above its 50 SMA on volume.</div>
+      </div>
+    </div>`;
 
   // Replace wide table with stacked cards — much better mobile readability
   const stockCards = scoredTop.map(({ r, relVol, rs, atrPct, avgVol, proximityTier, volDryUp, daysToEarnings, news, score, action, emoji, color, epsYoY, revYoY }, i) => {
@@ -1373,9 +1400,9 @@ function formatReport(stocks, regime, fx, crypto, journalSummary, date) {
         ${bestPick ? `<p style="margin:0;color:#8b949e;font-size:13px;">Best setup: <strong style="color:#fff;">${bestPick.r.d[0]}</strong> · Score <strong style="color:${bestPick.color};">${bestPick.score}/100</strong> · ${bestPick.emoji} ${bestPick.action}</p>` : ''}
       </div>
 
-      <!-- Stock Cards -->
+      <!-- Stock Cards (or suppression banner when regime is OFF) -->
       <div style="margin-bottom:16px;">
-        ${stockCards}
+        ${htmlSuppressPicks ? suppressedCardsHtml : stockCards}
       </div>
 
       <!-- FX Analysis -->
