@@ -128,12 +128,12 @@
     "rs": 1426,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 283.23,
+    "currentPrice": 271.3023,
     "maxSincePick": 313.17,
     "minSincePick": 255.27,
     "status": "ACTIVE",
-    "daysActive": 25,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 26,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "LITE",
@@ -145,12 +145,12 @@
     "rs": 1202,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 904.325,
+    "currentPrice": 928.5101,
     "maxSincePick": 1069.185,
     "minSincePick": 894.85,
     "status": "ACTIVE",
-    "daysActive": 25,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 26,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "WDC",
@@ -213,12 +213,12 @@
     "rs": 1249,
     "score": 49,
     "action": "WATCH",
-    "currentPrice": 283.23,
+    "currentPrice": 271.3023,
     "maxSincePick": 313.17,
     "minSincePick": 255.27,
     "status": "ACTIVE",
-    "daysActive": 18,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 19,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "LITE",
@@ -332,12 +332,12 @@
     "rs": 1123,
     "score": 43,
     "action": "WATCH",
-    "currentPrice": 904.325,
+    "currentPrice": 928.5101,
     "maxSincePick": 1029.15,
     "minSincePick": 902.31,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 12,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "WDC",
@@ -366,12 +366,12 @@
     "rs": 847,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 1009.065,
+    "currentPrice": 931.87,
     "maxSincePick": 1064.1,
     "minSincePick": 923.52,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 10,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "STX",
@@ -383,12 +383,12 @@
     "rs": 624,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 927.08,
+    "currentPrice": 897.35,
     "maxSincePick": 938.23,
     "minSincePick": 879.8,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 9,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "SNDK",
@@ -400,12 +400,12 @@
     "rs": 4483,
     "score": 53,
     "action": "STRONG",
-    "currentPrice": 1798.64,
+    "currentPrice": 1648.43,
     "maxSincePick": 1798.75,
-    "minSincePick": 1716.36,
+    "minSincePick": 1648.43,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 5,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "BE",
@@ -417,12 +417,12 @@
     "rs": 1355,
     "score": 33,
     "action": "WATCH",
-    "currentPrice": 283.23,
+    "currentPrice": 271.3023,
     "maxSincePick": 302.85,
-    "minSincePick": 273.51,
+    "minSincePick": 271.3023,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 5,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "LITE",
@@ -434,12 +434,12 @@
     "rs": 1093,
     "score": 39,
     "action": "WATCH",
-    "currentPrice": 904.325,
+    "currentPrice": 928.5101,
     "maxSincePick": 1029.15,
     "minSincePick": 904.325,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 5,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "WDC",
@@ -451,12 +451,12 @@
     "rs": 921,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 582.97,
+    "currentPrice": 543.4966,
     "maxSincePick": 589.01,
-    "minSincePick": 546.2,
+    "minSincePick": 543.4966,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-06-04"
+    "daysActive": 5,
+    "lastUpdated": "2026-06-05"
   },
   {
     "symbol": "MU",
@@ -468,11 +468,11 @@
     "rs": 951,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 1009.065,
+    "currentPrice": 931.87,
     "maxSincePick": 1060.565,
-    "minSincePick": 1009.065,
-    "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-06-04"
+    "minSincePick": 931.87,
+    "status": "STOPPED_OUT",
+    "daysActive": 3,
+    "lastUpdated": "2026-06-05"
   }
 ]
