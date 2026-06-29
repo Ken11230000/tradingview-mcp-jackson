@@ -587,12 +587,12 @@
     "rs": 318,
     "score": 30,
     "action": "WATCH",
-    "currentPrice": 375.79,
+    "currentPrice": 373.16,
     "maxSincePick": 413.395,
     "minSincePick": 354.51,
     "status": "ACTIVE",
-    "daysActive": 17,
-    "lastUpdated": "2026-06-26"
+    "daysActive": 20,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "SNDK",
@@ -604,12 +604,12 @@
     "rs": 4986,
     "score": 53,
     "action": "STRONG",
-    "currentPrice": 2200.31,
+    "currentPrice": 1993.73,
     "maxSincePick": 2303.15,
     "minSincePick": 1947.9835,
     "status": "ACTIVE",
-    "daysActive": 12,
-    "lastUpdated": "2026-06-26"
+    "daysActive": 15,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "BE",
@@ -638,12 +638,12 @@
     "rs": 1056,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 619.58,
+    "currentPrice": 636.42,
     "maxSincePick": 772.1,
     "minSincePick": 619.58,
     "status": "ACTIVE",
-    "daysActive": 12,
-    "lastUpdated": "2026-06-26"
+    "daysActive": 15,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "LITE",
@@ -672,12 +672,12 @@
     "rs": 684,
     "score": 57,
     "action": "STRONG",
-    "currentPrice": 965.045,
+    "currentPrice": 937.22,
     "maxSincePick": 1087.25,
-    "minSincePick": 965.045,
-    "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-06-26"
+    "minSincePick": 937.22,
+    "status": "STOPPED_OUT",
+    "daysActive": 14,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "MU",
@@ -689,12 +689,12 @@
     "rs": 757,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 1169.7995,
+    "currentPrice": 1095.32,
     "maxSincePick": 1191.72,
     "minSincePick": 1051.86,
     "status": "ACTIVE",
-    "daysActive": 10,
-    "lastUpdated": "2026-06-26"
+    "daysActive": 13,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "SNDK",
@@ -757,12 +757,12 @@
     "rs": 641,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 965.045,
+    "currentPrice": 937.22,
     "maxSincePick": 1028.42,
-    "minSincePick": 965.045,
+    "minSincePick": 937.22,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-06-26"
+    "daysActive": 7,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "MU",
@@ -774,12 +774,12 @@
     "rs": 718,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 1169.7995,
+    "currentPrice": 1095.32,
     "maxSincePick": 1189.225,
     "minSincePick": 1051.86,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-06-26"
+    "daysActive": 6,
+    "lastUpdated": "2026-06-29"
   },
   {
     "symbol": "COHR",
@@ -791,11 +791,62 @@
     "rs": 314,
     "score": 40,
     "action": "WATCH",
-    "currentPrice": 375.79,
+    "currentPrice": 373.16,
     "maxSincePick": 375.79,
-    "minSincePick": 375.79,
+    "minSincePick": 373.16,
+    "status": "ACTIVE",
+    "daysActive": 4,
+    "lastUpdated": "2026-06-29"
+  },
+  {
+    "symbol": "SNDK",
+    "pickDate": "2026-06-29",
+    "entry": 1993.73,
+    "stop": 1844.2,
+    "target1": 2392.48,
+    "target2": 2492.16,
+    "rs": 4101,
+    "score": 33,
+    "action": "WATCH",
+    "currentPrice": 1993.73,
+    "maxSincePick": 1993.73,
+    "minSincePick": 1993.73,
     "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-06-26"
+    "lastUpdated": "2026-06-29"
+  },
+  {
+    "symbol": "WDC",
+    "pickDate": "2026-06-29",
+    "entry": 636.42,
+    "stop": 588.69,
+    "target1": 763.7,
+    "target2": 795.52,
+    "rs": 882,
+    "score": 41,
+    "action": "WATCH",
+    "currentPrice": 636.42,
+    "maxSincePick": 636.42,
+    "minSincePick": 636.42,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-06-29"
+  },
+  {
+    "symbol": "TER",
+    "pickDate": "2026-06-29",
+    "entry": 461.86,
+    "stop": 427.22,
+    "target1": 554.23,
+    "target2": 577.33,
+    "rs": 387,
+    "score": 73,
+    "action": "BUY READY",
+    "currentPrice": 461.86,
+    "maxSincePick": 461.86,
+    "minSincePick": 461.86,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-06-29"
   }
 ]
