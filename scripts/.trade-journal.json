@@ -587,12 +587,12 @@
     "rs": 318,
     "score": 30,
     "action": "WATCH",
-    "currentPrice": 373.16,
+    "currentPrice": 392.155,
     "maxSincePick": 413.395,
     "minSincePick": 354.51,
     "status": "ACTIVE",
-    "daysActive": 20,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 21,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "SNDK",
@@ -604,12 +604,12 @@
     "rs": 4986,
     "score": 53,
     "action": "STRONG",
-    "currentPrice": 1993.73,
+    "currentPrice": 2177.71,
     "maxSincePick": 2303.15,
     "minSincePick": 1947.9835,
     "status": "ACTIVE",
-    "daysActive": 15,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 16,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "BE",
@@ -638,12 +638,12 @@
     "rs": 1056,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 636.42,
+    "currentPrice": 655,
     "maxSincePick": 772.1,
     "minSincePick": 619.58,
     "status": "ACTIVE",
-    "daysActive": 15,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 16,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "LITE",
@@ -689,12 +689,12 @@
     "rs": 757,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 1095.32,
+    "currentPrice": 1144.66,
     "maxSincePick": 1191.72,
     "minSincePick": 1051.86,
     "status": "ACTIVE",
-    "daysActive": 13,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 14,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "SNDK",
@@ -757,12 +757,12 @@
     "rs": 641,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 937.22,
+    "currentPrice": 979.51,
     "maxSincePick": 1028.42,
     "minSincePick": 937.22,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 8,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "MU",
@@ -774,12 +774,12 @@
     "rs": 718,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 1095.32,
+    "currentPrice": 1144.66,
     "maxSincePick": 1189.225,
     "minSincePick": 1051.86,
     "status": "ACTIVE",
-    "daysActive": 6,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 7,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "COHR",
@@ -791,12 +791,12 @@
     "rs": 314,
     "score": 40,
     "action": "WATCH",
-    "currentPrice": 373.16,
-    "maxSincePick": 375.79,
+    "currentPrice": 392.155,
+    "maxSincePick": 392.155,
     "minSincePick": 373.16,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 5,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "SNDK",
@@ -808,12 +808,12 @@
     "rs": 4101,
     "score": 33,
     "action": "WATCH",
-    "currentPrice": 1993.73,
-    "maxSincePick": 1993.73,
+    "currentPrice": 2177.71,
+    "maxSincePick": 2177.71,
     "minSincePick": 1993.73,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 2,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "WDC",
@@ -825,12 +825,12 @@
     "rs": 882,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 636.42,
-    "maxSincePick": 636.42,
+    "currentPrice": 655,
+    "maxSincePick": 655,
     "minSincePick": 636.42,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-06-29"
+    "daysActive": 2,
+    "lastUpdated": "2026-06-30"
   },
   {
     "symbol": "TER",
@@ -842,11 +842,45 @@
     "rs": 387,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 461.86,
-    "maxSincePick": 461.86,
+    "currentPrice": 482.14,
+    "maxSincePick": 482.14,
     "minSincePick": 461.86,
     "status": "ACTIVE",
+    "daysActive": 2,
+    "lastUpdated": "2026-06-30"
+  },
+  {
+    "symbol": "BE",
+    "pickDate": "2026-06-30",
+    "entry": 293.96,
+    "stop": 271.91,
+    "target1": 352.75,
+    "target2": 367.44,
+    "rs": 1072,
+    "score": 33,
+    "action": "WATCH",
+    "currentPrice": 293.9551,
+    "maxSincePick": 293.9551,
+    "minSincePick": 293.9551,
+    "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-06-29"
+    "lastUpdated": "2026-06-30"
+  },
+  {
+    "symbol": "STX",
+    "pickDate": "2026-06-30",
+    "entry": 979.51,
+    "stop": 906.05,
+    "target1": 1175.41,
+    "target2": 1224.39,
+    "rs": 569,
+    "score": 51,
+    "action": "STRONG",
+    "currentPrice": 979.51,
+    "maxSincePick": 979.51,
+    "minSincePick": 979.51,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-06-30"
   }
 ]
