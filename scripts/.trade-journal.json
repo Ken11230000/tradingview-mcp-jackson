@@ -774,12 +774,12 @@
     "rs": 718,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 975.56,
+    "currentPrice": 1007.635,
     "maxSincePick": 1189.225,
     "minSincePick": 975.56,
     "status": "ACTIVE",
-    "daysActive": 10,
-    "lastUpdated": "2026-07-03"
+    "daysActive": 13,
+    "lastUpdated": "2026-07-06"
   },
   {
     "symbol": "COHR",
@@ -893,12 +893,12 @@
     "rs": 740,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 975.56,
+    "currentPrice": 1007.635,
     "maxSincePick": 1053.84,
     "minSincePick": 975.56,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-07-03"
+    "daysActive": 6,
+    "lastUpdated": "2026-07-06"
   },
   {
     "symbol": "ALAB",
@@ -927,12 +927,12 @@
     "rs": 301,
     "score": 54,
     "action": "STRONG",
-    "currentPrice": 41.87,
-    "maxSincePick": 41.87,
+    "currentPrice": 44.29,
+    "maxSincePick": 44.29,
     "minSincePick": 41.87,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-03"
+    "daysActive": 4,
+    "lastUpdated": "2026-07-06"
   },
   {
     "symbol": "AMD",
@@ -944,12 +944,12 @@
     "rs": 262,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 517.82,
-    "maxSincePick": 517.82,
+    "currentPrice": 567.74,
+    "maxSincePick": 567.74,
     "minSincePick": 517.82,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-03"
+    "daysActive": 4,
+    "lastUpdated": "2026-07-06"
   },
   {
     "symbol": "LRCX",
@@ -961,11 +961,28 @@
     "rs": 247,
     "score": 40,
     "action": "WATCH",
-    "currentPrice": 351.41,
-    "maxSincePick": 351.41,
+    "currentPrice": 360.315,
+    "maxSincePick": 360.315,
     "minSincePick": 351.41,
     "status": "ACTIVE",
+    "daysActive": 4,
+    "lastUpdated": "2026-07-06"
+  },
+  {
+    "symbol": "SNDK",
+    "pickDate": "2026-07-06",
+    "entry": 1809.14,
+    "stop": 1673.45,
+    "target1": 2170.97,
+    "target2": 2261.42,
+    "rs": 3804,
+    "score": 33,
+    "action": "WATCH",
+    "currentPrice": 1809.1399,
+    "maxSincePick": 1809.1399,
+    "minSincePick": 1809.1399,
+    "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-07-03"
+    "lastUpdated": "2026-07-06"
   }
 ]
