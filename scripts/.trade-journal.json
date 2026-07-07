@@ -774,12 +774,12 @@
     "rs": 718,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 1007.635,
+    "currentPrice": 915.615,
     "maxSincePick": 1189.225,
-    "minSincePick": 975.56,
-    "status": "ACTIVE",
-    "daysActive": 13,
-    "lastUpdated": "2026-07-06"
+    "minSincePick": 915.615,
+    "status": "STOPPED_OUT",
+    "daysActive": 14,
+    "lastUpdated": "2026-07-07"
   },
   {
     "symbol": "COHR",
@@ -893,12 +893,12 @@
     "rs": 740,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 1007.635,
+    "currentPrice": 915.615,
     "maxSincePick": 1053.84,
-    "minSincePick": 975.56,
-    "status": "ACTIVE",
-    "daysActive": 6,
-    "lastUpdated": "2026-07-06"
+    "minSincePick": 915.615,
+    "status": "STOPPED_OUT",
+    "daysActive": 7,
+    "lastUpdated": "2026-07-07"
   },
   {
     "symbol": "ALAB",
@@ -927,12 +927,12 @@
     "rs": 301,
     "score": 54,
     "action": "STRONG",
-    "currentPrice": 44.29,
+    "currentPrice": 39.345,
     "maxSincePick": 44.29,
-    "minSincePick": 41.87,
+    "minSincePick": 39.345,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-07-06"
+    "daysActive": 5,
+    "lastUpdated": "2026-07-07"
   },
   {
     "symbol": "AMD",
@@ -944,12 +944,12 @@
     "rs": 262,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 567.74,
+    "currentPrice": 506.255,
     "maxSincePick": 567.74,
-    "minSincePick": 517.82,
+    "minSincePick": 506.255,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-07-06"
+    "daysActive": 5,
+    "lastUpdated": "2026-07-07"
   },
   {
     "symbol": "LRCX",
@@ -961,12 +961,12 @@
     "rs": 247,
     "score": 40,
     "action": "WATCH",
-    "currentPrice": 360.315,
+    "currentPrice": 319.71,
     "maxSincePick": 360.315,
-    "minSincePick": 351.41,
-    "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-07-06"
+    "minSincePick": 319.71,
+    "status": "STOPPED_OUT",
+    "daysActive": 5,
+    "lastUpdated": "2026-07-07"
   },
   {
     "symbol": "SNDK",
@@ -978,11 +978,62 @@
     "rs": 3804,
     "score": 33,
     "action": "WATCH",
-    "currentPrice": 1809.1399,
+    "currentPrice": 1542.6375,
     "maxSincePick": 1809.1399,
-    "minSincePick": 1809.1399,
+    "minSincePick": 1542.6375,
+    "status": "STOPPED_OUT",
+    "daysActive": 2,
+    "lastUpdated": "2026-07-07"
+  },
+  {
+    "symbol": "DELL",
+    "pickDate": "2026-07-07",
+    "entry": 405.51,
+    "stop": 375.1,
+    "target1": 486.62,
+    "target2": 506.89,
+    "rs": 204,
+    "score": 51,
+    "action": "STRONG",
+    "currentPrice": 405.515,
+    "maxSincePick": 405.515,
+    "minSincePick": 405.515,
     "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-07-06"
+    "lastUpdated": "2026-07-07"
+  },
+  {
+    "symbol": "ASML",
+    "pickDate": "2026-07-07",
+    "entry": 1727.4,
+    "stop": 1597.85,
+    "target1": 2072.88,
+    "target2": 2159.25,
+    "rs": 100,
+    "score": 47,
+    "action": "WATCH",
+    "currentPrice": 1727.4,
+    "maxSincePick": 1727.4,
+    "minSincePick": 1727.4,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-07-07"
+  },
+  {
+    "symbol": "VLO",
+    "pickDate": "2026-07-07",
+    "entry": 269.17,
+    "stop": 248.98,
+    "target1": 323,
+    "target2": 336.46,
+    "rs": 68,
+    "score": 52,
+    "action": "STRONG",
+    "currentPrice": 269.17,
+    "maxSincePick": 269.17,
+    "minSincePick": 269.17,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-07-07"
   }
 ]
