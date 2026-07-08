@@ -927,12 +927,12 @@
     "rs": 301,
     "score": 54,
     "action": "STRONG",
-    "currentPrice": 39.345,
+    "currentPrice": 39.89,
     "maxSincePick": 44.29,
     "minSincePick": 39.345,
     "status": "ACTIVE",
-    "daysActive": 5,
-    "lastUpdated": "2026-07-07"
+    "daysActive": 6,
+    "lastUpdated": "2026-07-08"
   },
   {
     "symbol": "AMD",
@@ -944,12 +944,12 @@
     "rs": 262,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 506.255,
+    "currentPrice": 516.18,
     "maxSincePick": 567.74,
     "minSincePick": 506.255,
     "status": "ACTIVE",
-    "daysActive": 5,
-    "lastUpdated": "2026-07-07"
+    "daysActive": 6,
+    "lastUpdated": "2026-07-08"
   },
   {
     "symbol": "LRCX",
@@ -995,12 +995,12 @@
     "rs": 204,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 405.515,
-    "maxSincePick": 405.515,
+    "currentPrice": 419.9,
+    "maxSincePick": 419.9,
     "minSincePick": 405.515,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-07"
+    "daysActive": 2,
+    "lastUpdated": "2026-07-08"
   },
   {
     "symbol": "ASML",
@@ -1012,12 +1012,12 @@
     "rs": 100,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1727.4,
-    "maxSincePick": 1727.4,
+    "currentPrice": 1754.887046,
+    "maxSincePick": 1754.887046,
     "minSincePick": 1727.4,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-07"
+    "daysActive": 2,
+    "lastUpdated": "2026-07-08"
   },
   {
     "symbol": "VLO",
@@ -1029,11 +1029,28 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 269.17,
-    "maxSincePick": 269.17,
+    "currentPrice": 278.88,
+    "maxSincePick": 278.88,
     "minSincePick": 269.17,
     "status": "ACTIVE",
+    "daysActive": 2,
+    "lastUpdated": "2026-07-08"
+  },
+  {
+    "symbol": "MU",
+    "pickDate": "2026-07-08",
+    "entry": 948.25,
+    "stop": 877.14,
+    "target1": 1137.91,
+    "target2": 1185.32,
+    "rs": 655,
+    "score": 41,
+    "action": "WATCH",
+    "currentPrice": 948.255,
+    "maxSincePick": 948.255,
+    "minSincePick": 948.255,
+    "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-07-07"
+    "lastUpdated": "2026-07-08"
   }
 ]
