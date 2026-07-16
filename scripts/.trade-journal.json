@@ -927,12 +927,12 @@
     "rs": 301,
     "score": 54,
     "action": "STRONG",
-    "currentPrice": 41.49,
+    "currentPrice": 40.785,
     "maxSincePick": 44.39,
     "minSincePick": 39.345,
     "status": "ACTIVE",
-    "daysActive": 13,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 14,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "AMD",
@@ -944,12 +944,12 @@
     "rs": 262,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 544.4821,
+    "currentPrice": 517.4,
     "maxSincePick": 567.74,
     "minSincePick": 506.255,
     "status": "ACTIVE",
-    "daysActive": 13,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 14,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "LRCX",
@@ -995,12 +995,12 @@
     "rs": 204,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 442.23,
+    "currentPrice": 409.97,
     "maxSincePick": 452.625,
     "minSincePick": 405.515,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 10,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "ASML",
@@ -1012,12 +1012,12 @@
     "rs": 100,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1780.94,
-    "maxSincePick": 1831.5,
+    "currentPrice": 1837.385,
+    "maxSincePick": 1837.385,
     "minSincePick": 1727.4,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 10,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "VLO",
@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 295.245,
-    "maxSincePick": 297.838,
+    "currentPrice": 303,
+    "maxSincePick": 303,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 10,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "MU",
@@ -1046,12 +1046,12 @@
     "rs": 655,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 953.02,
+    "currentPrice": 876.04,
     "maxSincePick": 1020.7,
-    "minSincePick": 941.37,
-    "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-07-15"
+    "minSincePick": 876.04,
+    "status": "STOPPED_OUT",
+    "daysActive": 9,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "STX",
@@ -1097,12 +1097,12 @@
     "rs": 284,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 41.49,
+    "currentPrice": 40.785,
     "maxSincePick": 42.29,
-    "minSincePick": 40.87,
+    "minSincePick": 40.785,
     "status": "ACTIVE",
-    "daysActive": 6,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 7,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "SNDK",
@@ -1114,12 +1114,12 @@
     "rs": 3708,
     "score": 33,
     "action": "WATCH",
-    "currentPrice": 1650.9246,
+    "currentPrice": 1516.45,
     "maxSincePick": 1772.525,
-    "minSincePick": 1650.9246,
-    "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-07-15"
+    "minSincePick": 1516.45,
+    "status": "STOPPED_OUT",
+    "daysActive": 4,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "AMD",
@@ -1131,12 +1131,12 @@
     "rs": 263,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 544.4821,
+    "currentPrice": 517.4,
     "maxSincePick": 553.935,
-    "minSincePick": 544.4821,
+    "minSincePick": 517.4,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-07-15"
+    "daysActive": 4,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "DELL",
@@ -1148,12 +1148,12 @@
     "rs": 236,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 442.23,
+    "currentPrice": 409.97,
     "maxSincePick": 450.29,
-    "minSincePick": 442.23,
-    "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-07-15"
+    "minSincePick": 409.97,
+    "status": "STOPPED_OUT",
+    "daysActive": 3,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "MU",
@@ -1165,12 +1165,12 @@
     "rs": 668,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 953.02,
+    "currentPrice": 876.04,
     "maxSincePick": 953.02,
-    "minSincePick": 953.02,
-    "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-15"
+    "minSincePick": 876.04,
+    "status": "STOPPED_OUT",
+    "daysActive": 2,
+    "lastUpdated": "2026-07-16"
   },
   {
     "symbol": "LRCX",
@@ -1182,11 +1182,45 @@
     "rs": 217,
     "score": 34,
     "action": "WATCH",
-    "currentPrice": 342.05,
+    "currentPrice": 333.52,
     "maxSincePick": 342.05,
-    "minSincePick": 342.05,
+    "minSincePick": 333.52,
+    "status": "ACTIVE",
+    "daysActive": 2,
+    "lastUpdated": "2026-07-16"
+  },
+  {
+    "symbol": "AMAT",
+    "pickDate": "2026-07-16",
+    "entry": 588.16,
+    "stop": 544.05,
+    "target1": 705.8,
+    "target2": 735.21,
+    "rs": 182,
+    "score": 30,
+    "action": "WATCH",
+    "currentPrice": 588.165,
+    "maxSincePick": 588.165,
+    "minSincePick": 588.165,
     "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-07-15"
+    "lastUpdated": "2026-07-16"
+  },
+  {
+    "symbol": "ASML",
+    "pickDate": "2026-07-16",
+    "entry": 1837.38,
+    "stop": 1699.58,
+    "target1": 2204.86,
+    "target2": 2296.73,
+    "rs": 123,
+    "score": 47,
+    "action": "WATCH",
+    "currentPrice": 1837.385,
+    "maxSincePick": 1837.385,
+    "minSincePick": 1837.385,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-07-16"
   }
 ]
