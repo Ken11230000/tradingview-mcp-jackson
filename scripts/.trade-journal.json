@@ -927,12 +927,12 @@
     "rs": 301,
     "score": 54,
     "action": "STRONG",
-    "currentPrice": 40.785,
+    "currentPrice": 37.14,
     "maxSincePick": 44.39,
-    "minSincePick": 39.345,
-    "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-07-16"
+    "minSincePick": 37.14,
+    "status": "STOPPED_OUT",
+    "daysActive": 15,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "AMD",
@@ -944,12 +944,12 @@
     "rs": 262,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 517.4,
+    "currentPrice": 469.3772,
     "maxSincePick": 567.74,
-    "minSincePick": 506.255,
-    "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-07-16"
+    "minSincePick": 469.3772,
+    "status": "STOPPED_OUT",
+    "daysActive": 15,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "LRCX",
@@ -995,12 +995,12 @@
     "rs": 204,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 409.97,
+    "currentPrice": 381.52,
     "maxSincePick": 452.625,
-    "minSincePick": 405.515,
+    "minSincePick": 381.52,
     "status": "ACTIVE",
-    "daysActive": 10,
-    "lastUpdated": "2026-07-16"
+    "daysActive": 11,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "ASML",
@@ -1012,12 +1012,12 @@
     "rs": 100,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1837.385,
+    "currentPrice": 1729.85,
     "maxSincePick": 1837.385,
     "minSincePick": 1727.4,
     "status": "ACTIVE",
-    "daysActive": 10,
-    "lastUpdated": "2026-07-16"
+    "daysActive": 11,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "VLO",
@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 303,
-    "maxSincePick": 303,
+    "currentPrice": 304.405,
+    "maxSincePick": 304.405,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 10,
-    "lastUpdated": "2026-07-16"
+    "daysActive": 11,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "MU",
@@ -1097,12 +1097,12 @@
     "rs": 284,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 40.785,
+    "currentPrice": 37.14,
     "maxSincePick": 42.29,
-    "minSincePick": 40.785,
-    "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-07-16"
+    "minSincePick": 37.14,
+    "status": "STOPPED_OUT",
+    "daysActive": 8,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "SNDK",
@@ -1131,12 +1131,12 @@
     "rs": 263,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 517.4,
+    "currentPrice": 469.3772,
     "maxSincePick": 553.935,
-    "minSincePick": 517.4,
-    "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-07-16"
+    "minSincePick": 469.3772,
+    "status": "STOPPED_OUT",
+    "daysActive": 5,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "DELL",
@@ -1182,12 +1182,12 @@
     "rs": 217,
     "score": 34,
     "action": "WATCH",
-    "currentPrice": 333.52,
+    "currentPrice": 305.61,
     "maxSincePick": 342.05,
-    "minSincePick": 333.52,
-    "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-07-16"
+    "minSincePick": 305.61,
+    "status": "STOPPED_OUT",
+    "daysActive": 3,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "AMAT",
@@ -1199,12 +1199,12 @@
     "rs": 182,
     "score": 30,
     "action": "WATCH",
-    "currentPrice": 588.165,
+    "currentPrice": 520.17,
     "maxSincePick": 588.165,
-    "minSincePick": 588.165,
-    "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-16"
+    "minSincePick": 520.17,
+    "status": "STOPPED_OUT",
+    "daysActive": 2,
+    "lastUpdated": "2026-07-17"
   },
   {
     "symbol": "ASML",
@@ -1216,11 +1216,11 @@
     "rs": 123,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1837.385,
+    "currentPrice": 1729.85,
     "maxSincePick": 1837.385,
-    "minSincePick": 1837.385,
+    "minSincePick": 1729.85,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-07-16"
+    "daysActive": 2,
+    "lastUpdated": "2026-07-17"
   }
 ]
