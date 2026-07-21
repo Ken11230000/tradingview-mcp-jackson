@@ -995,12 +995,12 @@
     "rs": 204,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 383.34,
+    "currentPrice": 401.605,
     "maxSincePick": 452.625,
     "minSincePick": 381.52,
     "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-07-20"
+    "daysActive": 15,
+    "lastUpdated": "2026-07-21"
   },
   {
     "symbol": "ASML",
@@ -1012,12 +1012,12 @@
     "rs": 100,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1740.98,
+    "currentPrice": 1791.98,
     "maxSincePick": 1837.385,
     "minSincePick": 1727.4,
     "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-07-20"
+    "daysActive": 15,
+    "lastUpdated": "2026-07-21"
   },
   {
     "symbol": "VLO",
@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 311.5,
+    "currentPrice": 310.635,
     "maxSincePick": 311.5,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-07-20"
+    "daysActive": 15,
+    "lastUpdated": "2026-07-21"
   },
   {
     "symbol": "MU",
@@ -1216,11 +1216,62 @@
     "rs": 123,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1740.98,
+    "currentPrice": 1791.98,
     "maxSincePick": 1837.385,
     "minSincePick": 1729.85,
     "status": "ACTIVE",
-    "daysActive": 5,
-    "lastUpdated": "2026-07-20"
+    "daysActive": 6,
+    "lastUpdated": "2026-07-21"
+  },
+  {
+    "symbol": "ASX",
+    "pickDate": "2026-07-21",
+    "entry": 39.52,
+    "stop": 36.56,
+    "target1": 47.43,
+    "target2": 49.41,
+    "rs": 257,
+    "score": 48,
+    "action": "WATCH",
+    "currentPrice": 39.525,
+    "maxSincePick": 39.525,
+    "minSincePick": 39.525,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-07-21"
+  },
+  {
+    "symbol": "AMD",
+    "pickDate": "2026-07-21",
+    "entry": 526.12,
+    "stop": 486.66,
+    "target1": 631.34,
+    "target2": 657.65,
+    "rs": 215,
+    "score": 51,
+    "action": "STRONG",
+    "currentPrice": 526.12,
+    "maxSincePick": 526.12,
+    "minSincePick": 526.12,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-07-21"
+  },
+  {
+    "symbol": "DELL",
+    "pickDate": "2026-07-21",
+    "entry": 401.61,
+    "stop": 371.48,
+    "target1": 481.93,
+    "target2": 502.01,
+    "rs": 189,
+    "score": 51,
+    "action": "STRONG",
+    "currentPrice": 401.605,
+    "maxSincePick": 401.605,
+    "minSincePick": 401.605,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-07-21"
   }
 ]
