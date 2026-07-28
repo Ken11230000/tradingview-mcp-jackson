@@ -995,12 +995,12 @@
     "rs": 204,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 419.03,
+    "currentPrice": 369.89,
     "maxSincePick": 454.41,
-    "minSincePick": 381.52,
-    "status": "ACTIVE",
-    "daysActive": 21,
-    "lastUpdated": "2026-07-27"
+    "minSincePick": 369.89,
+    "status": "STOPPED_OUT",
+    "daysActive": 22,
+    "lastUpdated": "2026-07-28"
   },
   {
     "symbol": "ASML",
@@ -1012,12 +1012,12 @@
     "rs": 100,
     "score": 47,
     "action": "WATCH",
-    "currentPrice": 1652.47,
+    "currentPrice": 1569.73,
     "maxSincePick": 1837.385,
-    "minSincePick": 1652.47,
-    "status": "ACTIVE",
-    "daysActive": 21,
-    "lastUpdated": "2026-07-27"
+    "minSincePick": 1569.73,
+    "status": "STOPPED_OUT",
+    "daysActive": 22,
+    "lastUpdated": "2026-07-28"
   },
   {
     "symbol": "VLO",
@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 301.02,
+    "currentPrice": 303.71,
     "maxSincePick": 316.53,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 21,
-    "lastUpdated": "2026-07-27"
+    "daysActive": 22,
+    "lastUpdated": "2026-07-28"
   },
   {
     "symbol": "MU",
@@ -1267,12 +1267,12 @@
     "rs": 189,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 419.03,
+    "currentPrice": 369.89,
     "maxSincePick": 454.41,
-    "minSincePick": 401.605,
-    "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-07-27"
+    "minSincePick": 369.89,
+    "status": "STOPPED_OUT",
+    "daysActive": 8,
+    "lastUpdated": "2026-07-28"
   },
   {
     "symbol": "MU",
