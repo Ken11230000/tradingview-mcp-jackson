@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 307.49,
+    "currentPrice": 306.58,
     "maxSincePick": 316.53,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 29,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 30,
+    "lastUpdated": "2026-08-05"
   },
   {
     "symbol": "MU",
@@ -1318,12 +1318,12 @@
     "rs": 206,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 455.36,
-    "maxSincePick": 455.36,
+    "currentPrice": 480.35,
+    "maxSincePick": 480.35,
     "minSincePick": 419.6,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-05"
   },
   {
     "symbol": "VLO",
@@ -1335,12 +1335,12 @@
     "rs": 112,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 307.49,
+    "currentPrice": 306.58,
     "maxSincePick": 313.955,
-    "minSincePick": 307.49,
+    "minSincePick": 306.58,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-05"
   },
   {
     "symbol": "SCCO",
@@ -1352,12 +1352,12 @@
     "rs": 87,
     "score": 35,
     "action": "WATCH",
-    "currentPrice": 194.19,
-    "maxSincePick": 194.19,
+    "currentPrice": 200.97,
+    "maxSincePick": 200.97,
     "minSincePick": 185.34,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-05"
   },
   {
     "symbol": "DDOG",
@@ -1369,12 +1369,12 @@
     "rs": 80,
     "score": 67,
     "action": "STRONG",
-    "currentPrice": 282.7391,
-    "maxSincePick": 282.7391,
+    "currentPrice": 288.665,
+    "maxSincePick": 288.665,
     "minSincePick": 275.45,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-05"
   },
   {
     "symbol": "GOOGL",
@@ -1386,12 +1386,12 @@
     "rs": 75,
     "score": 42,
     "action": "WATCH",
-    "currentPrice": 375.7,
-    "maxSincePick": 375.7,
+    "currentPrice": 380.335,
+    "maxSincePick": 380.335,
     "minSincePick": 369.17,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-05"
   },
   {
     "symbol": "AMD",
@@ -1403,11 +1403,11 @@
     "rs": 174,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 516.5,
+    "currentPrice": 488.5665,
     "maxSincePick": 516.5,
-    "minSincePick": 516.5,
+    "minSincePick": 488.5665,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-05"
   }
 ]
