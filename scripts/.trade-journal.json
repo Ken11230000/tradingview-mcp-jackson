@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 298.31,
+    "currentPrice": 302.99,
     "maxSincePick": 316.53,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 31,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 32,
+    "lastUpdated": "2026-08-07"
   },
   {
     "symbol": "MU",
@@ -1318,12 +1318,12 @@
     "rs": 206,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 450.995,
+    "currentPrice": 437.65,
     "maxSincePick": 480.35,
     "minSincePick": 419.6,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 5,
+    "lastUpdated": "2026-08-07"
   },
   {
     "symbol": "VLO",
@@ -1335,12 +1335,12 @@
     "rs": 112,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 298.31,
+    "currentPrice": 302.99,
     "maxSincePick": 313.955,
     "minSincePick": 298.31,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 5,
+    "lastUpdated": "2026-08-07"
   },
   {
     "symbol": "SCCO",
@@ -1352,12 +1352,12 @@
     "rs": 87,
     "score": 35,
     "action": "WATCH",
-    "currentPrice": 194.77,
+    "currentPrice": 193.03,
     "maxSincePick": 200.97,
     "minSincePick": 185.34,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 5,
+    "lastUpdated": "2026-08-07"
   },
   {
     "symbol": "DDOG",
@@ -1386,12 +1386,12 @@
     "rs": 75,
     "score": 42,
     "action": "WATCH",
-    "currentPrice": 361.11,
+    "currentPrice": 357.75,
     "maxSincePick": 380.335,
-    "minSincePick": 361.11,
+    "minSincePick": 357.75,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 5,
+    "lastUpdated": "2026-08-07"
   },
   {
     "symbol": "AMD",
@@ -1403,12 +1403,12 @@
     "rs": 174,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 487.75,
+    "currentPrice": 489.28,
     "maxSincePick": 516.5,
     "minSincePick": 487.75,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 4,
+    "lastUpdated": "2026-08-07"
   },
   {
     "symbol": "CRWD",
@@ -1420,11 +1420,11 @@
     "rs": 62,
     "score": 37,
     "action": "WATCH",
-    "currentPrice": 205.27,
-    "maxSincePick": 205.27,
+    "currentPrice": 207.39,
+    "maxSincePick": 207.39,
     "minSincePick": 205.27,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-06"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-07"
   }
 ]
