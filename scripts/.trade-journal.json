@@ -1029,12 +1029,12 @@
     "rs": 68,
     "score": 52,
     "action": "STRONG",
-    "currentPrice": 308,
+    "currentPrice": 316.32,
     "maxSincePick": 316.53,
     "minSincePick": 269.17,
     "status": "ACTIVE",
-    "daysActive": 35,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 36,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "MU",
@@ -1318,12 +1318,12 @@
     "rs": 206,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 457.63,
+    "currentPrice": 440.42,
     "maxSincePick": 480.35,
     "minSincePick": 419.6,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 9,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "VLO",
@@ -1335,12 +1335,12 @@
     "rs": 112,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 308,
-    "maxSincePick": 313.955,
+    "currentPrice": 316.32,
+    "maxSincePick": 316.32,
     "minSincePick": 298.31,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 9,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "SCCO",
@@ -1352,12 +1352,12 @@
     "rs": 87,
     "score": 35,
     "action": "WATCH",
-    "currentPrice": 197.85,
+    "currentPrice": 195.39,
     "maxSincePick": 200.97,
     "minSincePick": 185.34,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 9,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "DDOG",
@@ -1386,12 +1386,12 @@
     "rs": 75,
     "score": 42,
     "action": "WATCH",
-    "currentPrice": 355.495,
+    "currentPrice": 354.05,
     "maxSincePick": 380.335,
-    "minSincePick": 355.495,
+    "minSincePick": 354.05,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 9,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "AMD",
@@ -1420,12 +1420,12 @@
     "rs": 62,
     "score": 37,
     "action": "WATCH",
-    "currentPrice": 218.23,
-    "maxSincePick": 218.23,
+    "currentPrice": 222.66,
+    "maxSincePick": 222.66,
     "minSincePick": 205.27,
     "status": "ACTIVE",
-    "daysActive": 5,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 6,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "DELL",
@@ -1437,12 +1437,12 @@
     "rs": 217,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 457.63,
+    "currentPrice": 440.42,
     "maxSincePick": 457.63,
-    "minSincePick": 457.63,
+    "minSincePick": 440.42,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "HPE",
@@ -1471,12 +1471,12 @@
     "rs": 126,
     "score": 44,
     "action": "WATCH",
-    "currentPrice": 1764.91,
-    "maxSincePick": 1764.91,
+    "currentPrice": 1787.73,
+    "maxSincePick": 1787.73,
     "minSincePick": 1764.91,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "VLO",
@@ -1488,12 +1488,12 @@
     "rs": 109,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 308,
-    "maxSincePick": 308,
+    "currentPrice": 316.32,
+    "maxSincePick": 316.32,
     "minSincePick": 308,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-10"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-11"
   },
   {
     "symbol": "FTNT",
@@ -1505,11 +1505,28 @@
     "rs": 92,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 162.685,
+    "currentPrice": 161.81,
     "maxSincePick": 162.685,
-    "minSincePick": 162.685,
+    "minSincePick": 161.81,
+    "status": "ACTIVE",
+    "daysActive": 2,
+    "lastUpdated": "2026-08-11"
+  },
+  {
+    "symbol": "ASX",
+    "pickDate": "2026-08-11",
+    "entry": 38.82,
+    "stop": 35.91,
+    "target1": 46.58,
+    "target2": 48.52,
+    "rs": 265,
+    "score": 48,
+    "action": "WATCH",
+    "currentPrice": 38.82,
+    "maxSincePick": 38.82,
+    "minSincePick": 38.82,
     "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-08-10"
+    "lastUpdated": "2026-08-11"
   }
 ]
