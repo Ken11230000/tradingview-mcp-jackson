@@ -1318,12 +1318,12 @@
     "rs": 206,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 437.55,
+    "currentPrice": 437.92,
     "maxSincePick": 497.57,
     "minSincePick": 419.6,
     "status": "ACTIVE",
-    "daysActive": 18,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 19,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "VLO",
@@ -1335,12 +1335,12 @@
     "rs": 112,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 346.26,
+    "currentPrice": 345.11,
     "maxSincePick": 350.05,
     "minSincePick": 298.31,
     "status": "ACTIVE",
-    "daysActive": 18,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 19,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "SCCO",
@@ -1352,12 +1352,12 @@
     "rs": 87,
     "score": 35,
     "action": "WATCH",
-    "currentPrice": 194.68,
-    "maxSincePick": 200.97,
+    "currentPrice": 211.8075,
+    "maxSincePick": 211.8075,
     "minSincePick": 184.61,
     "status": "ACTIVE",
-    "daysActive": 18,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 19,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "DDOG",
@@ -1386,12 +1386,12 @@
     "rs": 75,
     "score": 42,
     "action": "WATCH",
-    "currentPrice": 344.72,
+    "currentPrice": 342.2,
     "maxSincePick": 380.335,
-    "minSincePick": 343.2,
+    "minSincePick": 342.2,
     "status": "ACTIVE",
-    "daysActive": 18,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 19,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "AMD",
@@ -1420,12 +1420,12 @@
     "rs": 62,
     "score": 37,
     "action": "WATCH",
-    "currentPrice": 201.63,
+    "currentPrice": 188.27,
     "maxSincePick": 226.32,
-    "minSincePick": 201.63,
-    "status": "ACTIVE",
-    "daysActive": 15,
-    "lastUpdated": "2026-08-20"
+    "minSincePick": 188.27,
+    "status": "STOPPED_OUT",
+    "daysActive": 16,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "DELL",
@@ -1437,12 +1437,12 @@
     "rs": 217,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 437.55,
+    "currentPrice": 437.92,
     "maxSincePick": 497.57,
     "minSincePick": 437.55,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 12,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "HPE",
@@ -1471,12 +1471,12 @@
     "rs": 126,
     "score": 44,
     "action": "WATCH",
-    "currentPrice": 1751.73,
+    "currentPrice": 1753.93,
     "maxSincePick": 1883.12,
     "minSincePick": 1751.73,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 12,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "VLO",
@@ -1488,12 +1488,12 @@
     "rs": 109,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 346.26,
+    "currentPrice": 345.11,
     "maxSincePick": 350.05,
     "minSincePick": 308,
     "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 12,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "FTNT",
@@ -1505,12 +1505,12 @@
     "rs": 92,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 152.85,
+    "currentPrice": 149.92,
     "maxSincePick": 164.745,
-    "minSincePick": 152.85,
-    "status": "ACTIVE",
-    "daysActive": 11,
-    "lastUpdated": "2026-08-20"
+    "minSincePick": 149.92,
+    "status": "STOPPED_OUT",
+    "daysActive": 12,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "ASX",
@@ -1539,12 +1539,12 @@
     "rs": 659,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 937.105,
+    "currentPrice": 975.315,
     "maxSincePick": 1011.75,
     "minSincePick": 937.105,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 8,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "STX",
@@ -1658,12 +1658,12 @@
     "rs": 139,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 346.26,
+    "currentPrice": 345.11,
     "maxSincePick": 350.05,
-    "minSincePick": 346.26,
+    "minSincePick": 345.11,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "ASML",
@@ -1675,12 +1675,12 @@
     "rs": 124,
     "score": 50,
     "action": "STRONG",
-    "currentPrice": 1751.73,
+    "currentPrice": 1753.93,
     "maxSincePick": 1802.98,
     "minSincePick": 1751.73,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 3,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "MPC",
@@ -1692,12 +1692,12 @@
     "rs": 103,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 360.75,
-    "maxSincePick": 360.75,
+    "currentPrice": 361.77,
+    "maxSincePick": 361.77,
     "minSincePick": 360.75,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "SCCO",
@@ -1709,12 +1709,12 @@
     "rs": 90,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 194.68,
-    "maxSincePick": 194.68,
+    "currentPrice": 211.8075,
+    "maxSincePick": 211.8075,
     "minSincePick": 194.68,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-08-20"
+    "daysActive": 2,
+    "lastUpdated": "2026-08-21"
   },
   {
     "symbol": "PSX",
@@ -1726,11 +1726,28 @@
     "rs": 80,
     "score": 69,
     "action": "STRONG",
-    "currentPrice": 242.29,
-    "maxSincePick": 242.29,
+    "currentPrice": 242.48,
+    "maxSincePick": 242.48,
     "minSincePick": 242.29,
     "status": "ACTIVE",
+    "daysActive": 2,
+    "lastUpdated": "2026-08-21"
+  },
+  {
+    "symbol": "MU",
+    "pickDate": "2026-08-21",
+    "entry": 975.32,
+    "stop": 902.17,
+    "target1": 1170.38,
+    "target2": 1219.14,
+    "rs": 713,
+    "score": 41,
+    "action": "WATCH",
+    "currentPrice": 975.315,
+    "maxSincePick": 975.315,
+    "minSincePick": 975.315,
+    "status": "ACTIVE",
     "daysActive": 0,
-    "lastUpdated": "2026-08-20"
+    "lastUpdated": "2026-08-21"
   }
 ]
