@@ -1879,12 +1879,12 @@
     "rs": 697,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 903.175,
+    "currentPrice": 909.5401,
     "maxSincePick": 1086.25,
     "minSincePick": 897.5,
     "status": "ACTIVE",
-    "daysActive": 48,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 49,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "VLO",
@@ -1913,12 +1913,12 @@
     "rs": 92,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 202.33,
+    "currentPrice": 203.16,
     "maxSincePick": 210.16,
     "minSincePick": 188.46,
     "status": "ACTIVE",
-    "daysActive": 47,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 48,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "DELL",
@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 227.915,
+    "currentPrice": 226.28,
     "maxSincePick": 279.45,
-    "minSincePick": 226.39,
+    "minSincePick": 226.28,
     "status": "ACTIVE",
-    "daysActive": 36,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 37,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "MPC",
@@ -2202,12 +2202,12 @@
     "rs": 240,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 40.485,
+    "currentPrice": 41.1,
     "maxSincePick": 47.53,
     "minSincePick": 40.245,
     "status": "ACTIVE",
-    "daysActive": 32,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 33,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "DELL",
@@ -2576,12 +2576,12 @@
     "rs": 680,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 226.47,
-    "maxSincePick": 238.69,
+    "currentPrice": 239.305,
+    "maxSincePick": 239.305,
     "minSincePick": 214.2269,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 8,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "MRVL",
@@ -2610,12 +2610,12 @@
     "rs": 166,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 434.73,
+    "currentPrice": 432.265,
     "maxSincePick": 457.87,
-    "minSincePick": 434.73,
+    "minSincePick": 432.265,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 8,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "MPC",
@@ -2627,12 +2627,12 @@
     "rs": 147,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 472.905,
+    "currentPrice": 471.9,
     "maxSincePick": 479.57,
-    "minSincePick": 472.905,
+    "minSincePick": 471.9,
     "status": "ACTIVE",
-    "daysActive": 6,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 7,
+    "lastUpdated": "2026-10-20"
   },
   {
     "symbol": "AMD",
@@ -2644,11 +2644,62 @@
     "rs": 130,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 536.905,
+    "currentPrice": 539.73,
     "maxSincePick": 546.4,
     "minSincePick": 536.905,
     "status": "ACTIVE",
-    "daysActive": 5,
-    "lastUpdated": "2026-10-19"
+    "daysActive": 6,
+    "lastUpdated": "2026-10-20"
+  },
+  {
+    "symbol": "MRNA",
+    "pickDate": "2026-10-20",
+    "entry": 239.31,
+    "stop": 221.36,
+    "target1": 287.17,
+    "target2": 299.13,
+    "rs": 791,
+    "score": 57,
+    "action": "STRONG",
+    "currentPrice": 239.305,
+    "maxSincePick": 239.305,
+    "minSincePick": 239.305,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-10-20"
+  },
+  {
+    "symbol": "ASX",
+    "pickDate": "2026-10-20",
+    "entry": 41.1,
+    "stop": 38.02,
+    "target1": 49.32,
+    "target2": 51.38,
+    "rs": 199,
+    "score": 48,
+    "action": "WATCH",
+    "currentPrice": 41.1,
+    "maxSincePick": 41.1,
+    "minSincePick": 41.1,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-10-20"
+  },
+  {
+    "symbol": "VLO",
+    "pickDate": "2026-10-20",
+    "entry": 432.26,
+    "stop": 399.85,
+    "target1": 518.72,
+    "target2": 540.33,
+    "rs": 158,
+    "score": 51,
+    "action": "STRONG",
+    "currentPrice": 432.265,
+    "maxSincePick": 432.265,
+    "minSincePick": 432.265,
+    "status": "ACTIVE",
+    "daysActive": 0,
+    "lastUpdated": "2026-10-20"
   }
 ]
