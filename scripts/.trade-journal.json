@@ -1879,12 +1879,12 @@
     "rs": 697,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 917.22,
+    "currentPrice": 856.015,
     "maxSincePick": 1086.25,
-    "minSincePick": 897.5,
-    "status": "ACTIVE",
-    "daysActive": 50,
-    "lastUpdated": "2026-10-21"
+    "minSincePick": 856.015,
+    "status": "STOPPED_OUT",
+    "daysActive": 51,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "VLO",
@@ -1913,12 +1913,12 @@
     "rs": 92,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 196.25,
+    "currentPrice": 182.665,
     "maxSincePick": 210.16,
-    "minSincePick": 188.46,
-    "status": "ACTIVE",
-    "daysActive": 49,
-    "lastUpdated": "2026-10-21"
+    "minSincePick": 182.665,
+    "status": "STOPPED_OUT",
+    "daysActive": 50,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "DELL",
@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 241.325,
+    "currentPrice": 238.765,
     "maxSincePick": 279.45,
     "minSincePick": 226.28,
     "status": "ACTIVE",
-    "daysActive": 38,
-    "lastUpdated": "2026-10-21"
+    "daysActive": 39,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "MPC",
@@ -2202,12 +2202,12 @@
     "rs": 240,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 42.59,
+    "currentPrice": 37.9,
     "maxSincePick": 47.53,
-    "minSincePick": 40.245,
+    "minSincePick": 37.9,
     "status": "ACTIVE",
-    "daysActive": 34,
-    "lastUpdated": "2026-10-21"
+    "daysActive": 35,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "DELL",
@@ -2576,12 +2576,12 @@
     "rs": 680,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 248.74,
+    "currentPrice": 186.8799,
     "maxSincePick": 248.74,
-    "minSincePick": 214.2269,
-    "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-10-21"
+    "minSincePick": 186.8799,
+    "status": "STOPPED_OUT",
+    "daysActive": 10,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "MRVL",
@@ -2610,12 +2610,12 @@
     "rs": 166,
     "score": 61,
     "action": "STRONG",
-    "currentPrice": 428.2601,
+    "currentPrice": 419.5,
     "maxSincePick": 457.87,
-    "minSincePick": 428.2601,
-    "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-10-21"
+    "minSincePick": 419.5,
+    "status": "STOPPED_OUT",
+    "daysActive": 10,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "MPC",
@@ -2627,12 +2627,12 @@
     "rs": 147,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 463,
+    "currentPrice": 455.34,
     "maxSincePick": 479.57,
-    "minSincePick": 463,
+    "minSincePick": 455.34,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-10-21"
+    "daysActive": 9,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "AMD",
@@ -2644,12 +2644,12 @@
     "rs": 130,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 554.09,
+    "currentPrice": 509.655,
     "maxSincePick": 554.09,
-    "minSincePick": 536.905,
+    "minSincePick": 509.655,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-10-21"
+    "daysActive": 8,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "MRNA",
@@ -2661,12 +2661,12 @@
     "rs": 791,
     "score": 57,
     "action": "STRONG",
-    "currentPrice": 248.74,
+    "currentPrice": 186.8799,
     "maxSincePick": 248.74,
-    "minSincePick": 239.305,
-    "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-10-21"
+    "minSincePick": 186.8799,
+    "status": "STOPPED_OUT",
+    "daysActive": 3,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "ASX",
@@ -2678,12 +2678,12 @@
     "rs": 199,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 42.59,
+    "currentPrice": 37.9,
     "maxSincePick": 42.59,
-    "minSincePick": 41.1,
-    "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-10-21"
+    "minSincePick": 37.9,
+    "status": "STOPPED_OUT",
+    "daysActive": 3,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "VLO",
@@ -2695,12 +2695,12 @@
     "rs": 158,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 428.2601,
+    "currentPrice": 419.5,
     "maxSincePick": 432.265,
-    "minSincePick": 428.2601,
+    "minSincePick": 419.5,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-10-21"
+    "daysActive": 3,
+    "lastUpdated": "2026-10-22"
   },
   {
     "symbol": "MPC",
@@ -2712,11 +2712,11 @@
     "rs": 134,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 463,
+    "currentPrice": 455.34,
     "maxSincePick": 463,
-    "minSincePick": 463,
+    "minSincePick": 455.34,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-10-21"
+    "daysActive": 2,
+    "lastUpdated": "2026-10-22"
   }
 ]
