@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 238.765,
+    "currentPrice": 253.405,
     "maxSincePick": 279.45,
     "minSincePick": 226.28,
     "status": "ACTIVE",
-    "daysActive": 39,
-    "lastUpdated": "2026-10-22"
+    "daysActive": 40,
+    "lastUpdated": "2026-10-23"
   },
   {
     "symbol": "MPC",
@@ -2202,12 +2202,12 @@
     "rs": 240,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 37.9,
+    "currentPrice": 38.53,
     "maxSincePick": 47.53,
     "minSincePick": 37.9,
     "status": "ACTIVE",
-    "daysActive": 35,
-    "lastUpdated": "2026-10-22"
+    "daysActive": 36,
+    "lastUpdated": "2026-10-23"
   },
   {
     "symbol": "DELL",
@@ -2627,12 +2627,12 @@
     "rs": 147,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 455.34,
+    "currentPrice": 460.14,
     "maxSincePick": 479.57,
     "minSincePick": 455.34,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-10-22"
+    "daysActive": 10,
+    "lastUpdated": "2026-10-23"
   },
   {
     "symbol": "AMD",
@@ -2644,12 +2644,12 @@
     "rs": 130,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 509.655,
+    "currentPrice": 515.54,
     "maxSincePick": 554.09,
     "minSincePick": 509.655,
     "status": "ACTIVE",
-    "daysActive": 8,
-    "lastUpdated": "2026-10-22"
+    "daysActive": 9,
+    "lastUpdated": "2026-10-23"
   },
   {
     "symbol": "MRNA",
@@ -2695,12 +2695,12 @@
     "rs": 158,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 419.5,
+    "currentPrice": 425.91,
     "maxSincePick": 432.265,
     "minSincePick": 419.5,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-10-22"
+    "daysActive": 4,
+    "lastUpdated": "2026-10-23"
   },
   {
     "symbol": "MPC",
@@ -2712,11 +2712,11 @@
     "rs": 134,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 455.34,
+    "currentPrice": 460.14,
     "maxSincePick": 463,
     "minSincePick": 455.34,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-10-22"
+    "daysActive": 3,
+    "lastUpdated": "2026-10-23"
   }
 ]
