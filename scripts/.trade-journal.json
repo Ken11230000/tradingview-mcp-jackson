@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 253.405,
+    "currentPrice": 263.79,
     "maxSincePick": 279.45,
     "minSincePick": 226.28,
     "status": "ACTIVE",
-    "daysActive": 40,
-    "lastUpdated": "2026-10-23"
+    "daysActive": 43,
+    "lastUpdated": "2026-10-26"
   },
   {
     "symbol": "MPC",
@@ -2202,12 +2202,12 @@
     "rs": 240,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 38.53,
+    "currentPrice": 40.125,
     "maxSincePick": 47.53,
     "minSincePick": 37.9,
     "status": "ACTIVE",
-    "daysActive": 36,
-    "lastUpdated": "2026-10-23"
+    "daysActive": 39,
+    "lastUpdated": "2026-10-26"
   },
   {
     "symbol": "DELL",
@@ -2627,12 +2627,12 @@
     "rs": 147,
     "score": 73,
     "action": "BUY READY",
-    "currentPrice": 460.14,
+    "currentPrice": 471.37,
     "maxSincePick": 479.57,
     "minSincePick": 455.34,
     "status": "ACTIVE",
-    "daysActive": 10,
-    "lastUpdated": "2026-10-23"
+    "daysActive": 13,
+    "lastUpdated": "2026-10-26"
   },
   {
     "symbol": "AMD",
@@ -2644,12 +2644,12 @@
     "rs": 130,
     "score": 41,
     "action": "WATCH",
-    "currentPrice": 515.54,
+    "currentPrice": 531.6425,
     "maxSincePick": 554.09,
     "minSincePick": 509.655,
     "status": "ACTIVE",
-    "daysActive": 9,
-    "lastUpdated": "2026-10-23"
+    "daysActive": 12,
+    "lastUpdated": "2026-10-26"
   },
   {
     "symbol": "MRNA",
@@ -2695,12 +2695,12 @@
     "rs": 158,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 425.91,
+    "currentPrice": 426.44,
     "maxSincePick": 432.265,
     "minSincePick": 419.5,
     "status": "ACTIVE",
-    "daysActive": 4,
-    "lastUpdated": "2026-10-23"
+    "daysActive": 7,
+    "lastUpdated": "2026-10-26"
   },
   {
     "symbol": "MPC",
@@ -2712,11 +2712,11 @@
     "rs": 134,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 460.14,
-    "maxSincePick": 463,
+    "currentPrice": 471.37,
+    "maxSincePick": 471.37,
     "minSincePick": 455.34,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-10-23"
+    "daysActive": 6,
+    "lastUpdated": "2026-10-26"
   }
 ]
