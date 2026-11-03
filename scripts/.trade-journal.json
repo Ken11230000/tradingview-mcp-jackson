@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 241.81,
+    "currentPrice": 242.34,
     "maxSincePick": 279.45,
     "minSincePick": 226.28,
     "status": "ACTIVE",
-    "daysActive": 50,
-    "lastUpdated": "2026-11-02"
+    "daysActive": 51,
+    "lastUpdated": "2026-11-03"
   },
   {
     "symbol": "MPC",
@@ -2202,12 +2202,12 @@
     "rs": 240,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 39.17,
+    "currentPrice": 39.145,
     "maxSincePick": 47.53,
     "minSincePick": 37.9,
     "status": "ACTIVE",
-    "daysActive": 46,
-    "lastUpdated": "2026-11-02"
+    "daysActive": 47,
+    "lastUpdated": "2026-11-03"
   },
   {
     "symbol": "DELL",
@@ -2729,12 +2729,12 @@
     "rs": 626,
     "score": 25,
     "action": "WAIT",
-    "currentPrice": 220.83,
-    "maxSincePick": 221.345,
+    "currentPrice": 228.125,
+    "maxSincePick": 228.125,
     "minSincePick": 199.605,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-11-02"
+    "daysActive": 8,
+    "lastUpdated": "2026-11-03"
   },
   {
     "symbol": "ASX",
@@ -2746,12 +2746,12 @@
     "rs": 202,
     "score": 48,
     "action": "WATCH",
-    "currentPrice": 39.17,
+    "currentPrice": 39.145,
     "maxSincePick": 44.095,
     "minSincePick": 38.72,
     "status": "ACTIVE",
-    "daysActive": 7,
-    "lastUpdated": "2026-11-02"
+    "daysActive": 8,
+    "lastUpdated": "2026-11-03"
   },
   {
     "symbol": "HPE",
@@ -2814,11 +2814,11 @@
     "rs": 113,
     "score": 51,
     "action": "STRONG",
-    "currentPrice": 430.39,
+    "currentPrice": 427.54,
     "maxSincePick": 440.08,
     "minSincePick": 422.63,
     "status": "ACTIVE",
-    "daysActive": 6,
-    "lastUpdated": "2026-11-02"
+    "daysActive": 7,
+    "lastUpdated": "2026-11-03"
   }
 ]
