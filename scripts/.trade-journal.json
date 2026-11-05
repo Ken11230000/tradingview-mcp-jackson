@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 243.635,
+    "currentPrice": 222.9525,
     "maxSincePick": 279.45,
-    "minSincePick": 226.28,
+    "minSincePick": 222.9525,
     "status": "ACTIVE",
-    "daysActive": 52,
-    "lastUpdated": "2026-11-04"
+    "daysActive": 53,
+    "lastUpdated": "2026-11-05"
   },
   {
     "symbol": "MPC",
@@ -2831,12 +2831,12 @@
     "rs": 873,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 243.85,
-    "maxSincePick": 243.85,
+    "currentPrice": 244.625,
+    "maxSincePick": 244.625,
     "minSincePick": 243.85,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-11-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-11-05"
   },
   {
     "symbol": "TXN",
@@ -2848,12 +2848,12 @@
     "rs": 79,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 310.565,
+    "currentPrice": 290.685,
     "maxSincePick": 310.565,
-    "minSincePick": 310.565,
+    "minSincePick": 290.685,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-11-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-11-05"
   },
   {
     "symbol": "SU",
@@ -2865,12 +2865,12 @@
     "rs": 70,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 71.955,
+    "currentPrice": 70.13,
     "maxSincePick": 71.955,
-    "minSincePick": 71.955,
+    "minSincePick": 70.13,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-11-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-11-05"
   },
   {
     "symbol": "CRWD",
@@ -2882,12 +2882,12 @@
     "rs": 67,
     "score": 27,
     "action": "WAIT",
-    "currentPrice": 243.635,
+    "currentPrice": 222.9525,
     "maxSincePick": 243.635,
-    "minSincePick": 243.635,
-    "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-11-04"
+    "minSincePick": 222.9525,
+    "status": "STOPPED_OUT",
+    "daysActive": 2,
+    "lastUpdated": "2026-11-05"
   },
   {
     "symbol": "TGT",
@@ -2899,11 +2899,11 @@
     "rs": 65,
     "score": 56,
     "action": "STRONG",
-    "currentPrice": 162.26,
+    "currentPrice": 158.9,
     "maxSincePick": 162.26,
-    "minSincePick": 162.26,
+    "minSincePick": 158.9,
     "status": "ACTIVE",
-    "daysActive": 0,
-    "lastUpdated": "2026-11-04"
+    "daysActive": 2,
+    "lastUpdated": "2026-11-05"
   }
 ]
