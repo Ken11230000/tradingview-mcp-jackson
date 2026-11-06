@@ -2117,12 +2117,12 @@
     "rs": 103,
     "score": 59,
     "action": "STRONG",
-    "currentPrice": 222.9525,
+    "currentPrice": 219.33,
     "maxSincePick": 279.45,
-    "minSincePick": 222.9525,
-    "status": "ACTIVE",
-    "daysActive": 53,
-    "lastUpdated": "2026-11-05"
+    "minSincePick": 219.33,
+    "status": "STOPPED_OUT",
+    "daysActive": 54,
+    "lastUpdated": "2026-11-06"
   },
   {
     "symbol": "MPC",
@@ -2831,12 +2831,12 @@
     "rs": 873,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 244.625,
-    "maxSincePick": 244.625,
+    "currentPrice": 258.9499,
+    "maxSincePick": 258.9499,
     "minSincePick": 243.85,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-11-05"
+    "daysActive": 3,
+    "lastUpdated": "2026-11-06"
   },
   {
     "symbol": "TXN",
@@ -2848,12 +2848,12 @@
     "rs": 79,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 290.685,
+    "currentPrice": 279.55,
     "maxSincePick": 310.565,
-    "minSincePick": 290.685,
-    "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-11-05"
+    "minSincePick": 279.55,
+    "status": "STOPPED_OUT",
+    "daysActive": 3,
+    "lastUpdated": "2026-11-06"
   },
   {
     "symbol": "SU",
@@ -2865,12 +2865,12 @@
     "rs": 70,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 70.13,
+    "currentPrice": 69.105,
     "maxSincePick": 71.955,
-    "minSincePick": 70.13,
+    "minSincePick": 69.105,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-11-05"
+    "daysActive": 3,
+    "lastUpdated": "2026-11-06"
   },
   {
     "symbol": "CRWD",
@@ -2899,11 +2899,11 @@
     "rs": 65,
     "score": 56,
     "action": "STRONG",
-    "currentPrice": 158.9,
+    "currentPrice": 157.72,
     "maxSincePick": 162.26,
-    "minSincePick": 158.9,
+    "minSincePick": 157.72,
     "status": "ACTIVE",
-    "daysActive": 2,
-    "lastUpdated": "2026-11-05"
+    "daysActive": 3,
+    "lastUpdated": "2026-11-06"
   }
 ]
