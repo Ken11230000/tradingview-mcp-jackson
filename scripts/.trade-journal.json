@@ -2831,12 +2831,12 @@
     "rs": 873,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 258.9499,
-    "maxSincePick": 258.9499,
+    "currentPrice": 269,
+    "maxSincePick": 269,
     "minSincePick": 243.85,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-11-06"
+    "daysActive": 6,
+    "lastUpdated": "2026-11-09"
   },
   {
     "symbol": "TXN",
@@ -2865,12 +2865,12 @@
     "rs": 70,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 69.105,
+    "currentPrice": 67.44,
     "maxSincePick": 71.955,
-    "minSincePick": 69.105,
+    "minSincePick": 67.44,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-11-06"
+    "daysActive": 6,
+    "lastUpdated": "2026-11-09"
   },
   {
     "symbol": "CRWD",
@@ -2899,11 +2899,11 @@
     "rs": 65,
     "score": 56,
     "action": "STRONG",
-    "currentPrice": 157.72,
-    "maxSincePick": 162.26,
+    "currentPrice": 165.9,
+    "maxSincePick": 165.9,
     "minSincePick": 157.72,
     "status": "ACTIVE",
-    "daysActive": 3,
-    "lastUpdated": "2026-11-06"
+    "daysActive": 6,
+    "lastUpdated": "2026-11-09"
   }
 ]
