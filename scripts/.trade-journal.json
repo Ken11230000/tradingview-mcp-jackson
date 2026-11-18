@@ -2865,12 +2865,12 @@
     "rs": 70,
     "score": 45,
     "action": "WATCH",
-    "currentPrice": 68.195,
+    "currentPrice": 64.605,
     "maxSincePick": 71.955,
-    "minSincePick": 67.44,
-    "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-11-17"
+    "minSincePick": 64.605,
+    "status": "STOPPED_OUT",
+    "daysActive": 15,
+    "lastUpdated": "2026-11-18"
   },
   {
     "symbol": "CRWD",
@@ -2899,11 +2899,11 @@
     "rs": 65,
     "score": 56,
     "action": "STRONG",
-    "currentPrice": 159.495,
-    "maxSincePick": 165.9,
+    "currentPrice": 167.37,
+    "maxSincePick": 167.37,
     "minSincePick": 157.72,
     "status": "ACTIVE",
-    "daysActive": 14,
-    "lastUpdated": "2026-11-17"
+    "daysActive": 15,
+    "lastUpdated": "2026-11-18"
   }
 ]
